@@ -1,3 +1,5 @@
+from decompressor import decompress
+
 def create_splits(string):
     all_splits = []
     n = 2**(len(string)-1)
@@ -15,10 +17,12 @@ def create_splits(string):
         all_splits.append(split)
     return all_splits
 
+# Turns a part of a list of substrings into an iteration
 def build_iteration(split, i, j):
     new_elem = str(j - i) + '*(' + split[i] + ')'
     return split[:i] + [new_elem] + split[j:]
 
+# Turns a part of a list of substrings into an symmetry
 def build_symmetry(split, i, j, pivot):
     new_elem = 'S['
     for arg in split[i:i+pivot]:
@@ -28,10 +32,14 @@ def build_symmetry(split, i, j, pivot):
     new_elem += '(' + split[i+pivot] + ')]'
     return split[:i] + [new_elem] + split[j:]
 
-def build_alternation(split, i, j, offset):
+# Turns a part of a list of substrings into an alternation
+def build_alternation(split, i, j, offset, other_elems = None):
     alt_half = '<(' + split[i+offset] + ')>'
-    other_elems= split[i:j][1 - offset::2]
-    other_half = '<' + ''.join(['(' + e + ')' for e in other_elems]) + '>'
+    if not other_elems:
+        other_elems = split[i:j][1 - offset::2]
+        other_half = '<' + ''.join(['(' + e + ')' for e in other_elems]) + '>'
+    else:
+        other_half = '<' + ''.join(other_elems) + '>'
     if offset == 0:
         new_elem = alt_half + '/' + other_half
     else:
@@ -62,15 +70,31 @@ def compress_split(split):
             if len(split[i:j])%2 != 0:
                 continue
 
+            # Check whether the even/odd elements of the list are the same
+            offsets = []
             if len(set(split[i:j][::2])) == 1:
-                 new_codes.append(build_alternation(split, i, j, 0))
+                offsets.append(0)
             if len(set(split[i:j][1::2])) == 1:
-                 new_codes.append(build_alternation(split, i, j, 1))
+                offsets.append(1)
+
+            if offsets != []:
+                for offset in offsets:
+                    new_codes.append(build_alternation(split, i, j, offset))
+                    # Special codes within alternations
+                    argument_split = \
+                        ['('+ a +')' for a in split[i:j][1-offset::2]]
+                    splits = compress_split(argument_split)
+                    for s in splits:
+                        new_codes.append(build_alternation(\
+                            split, i, j, offset, other_elems = s))
 
     return new_codes
 
 def compress(string):
-    splits = [[string]] + create_splits(string)
+    if isinstance(string, str):
+        splits = [[string]] + create_splits(string)
+    else:
+        splits = string
     all_splits = []
     all_codes = []
     while splits != []:
@@ -82,10 +106,10 @@ def compress(string):
             all_codes.append(''.join(s))
         new_codes = compress_split(s)
         splits += new_codes
-    return all_codes
+    return all_splits, all_codes
 
 if __name__ == '__main__':
-    s = 'aaaa'
-    aa = compress(s)
-    for a in aa:
-        print(a)
+    s = 'AAAA'
+    splits, codes = compress(s)
+    for a in codes:
+        print(a, decompress(a))
