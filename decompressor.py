@@ -4,7 +4,7 @@ Geerten Rijsdijk (11296720)
 
 In this file, a SIT decompressor is implemented.
 
-USAGE: decompress.py <code>
+USAGE: decompressor.py <code>
 Code with spaces must be put in double quotes.
 '''
 
@@ -125,7 +125,7 @@ def decompress(code):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print('USAGE: decompress.py <code>')
+        print('USAGE: decompressor.py <code>')
         print('Code with spaces must be put in double quotes.')
     elif sys.argv[1]:
         print(decompress(sys.argv[1]))
