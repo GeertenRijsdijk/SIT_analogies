@@ -74,7 +74,7 @@ def find_operators(code):
     # List of operators.
     operators = []
     # Alternations are separate because they consist of 2 parts
-    alternations = []
+    alternation_stack = []
 
     for i, c in enumerate(code):
         # (possible) start of operator, add to stack
@@ -92,17 +92,18 @@ def find_operators(code):
         # Add parts of alternations to the alternations list
         elif c == '>':
             start = bracket_stack.pop(-1)
-            alternations.append(code[start[1]:i+1])
+            if i == len(code) - 1 or code[i+1] != '/':
+                left = alternation_stack.pop(-1)
+                right = code[start[1]:i+1]
+                operators.append(left+'/'+right)
+            else:
+                alternation_stack.append(code[start[1]:i+1])
 
-    # Combine alternation halves into full operators
-    for i in range(0, len(alternations), 2):
-        operators.append(alternations[i]+'/'+alternations[i+1])
     return operators
 
 # Decompresses all lowest level operators (i.e. without nested operators)
 def decompress_base_layer(code):
     operators = find_operators(code)
-
     # Build a dictionary of all the operators and their decompression
     decomp_dict = {}
     for op in operators:
