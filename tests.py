@@ -34,21 +34,21 @@ class Test_Decompressor(unittest.TestCase):
 class Test_Compressor(unittest.TestCase):
     def test_iteration(self):
         strings = ['AAAA', 'ABAB', 'AABB', 'AAAAAA', 'AAABBB', 'AAAAAAAA']
-        compress_decompress_compare(strings)
+        self.compress_decompress_compare(strings)
 
     def test_symmetry(self):
         strings = ['ABA', 'ABCBA', 'BACABAC', 'BAAB', 'CAACBDB']
-        compress_decompress_compare(strings)
+        self.compress_decompress_compare(strings)
 
-    def test_symmetry(self):
+    def test_alternation(self):
         strings = ['ABAD', 'ABACAD', 'CDACDBCDE', 'QAQBQCQD']
-        compress_decompress_compare(strings)
+        self.compress_decompress_compare(strings)
 
     def test_combined(self):
         strings = ['ABACAB', 'AABCBAA', 'AABAACAAB']
-        compress_decompress_compare(strings)
+        self.compress_decompress_compare(strings)
 
-    def compress_decompress_compare(strings):
+    def compress_decompress_compare(self, strings):
         for string in strings:
             answers, _ = compress(string)
             for ans in answers:
