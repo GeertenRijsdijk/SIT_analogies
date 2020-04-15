@@ -1,5 +1,6 @@
 import unittest
 from decompressor import decompress
+from compressor_bruteforce import compress
 
 class Test_Decompressor(unittest.TestCase):
 
@@ -21,6 +22,7 @@ class Test_Decompressor(unittest.TestCase):
         self.assertEqual(decompress('<(a)(b)(c)>/<(d)>'), 'adbdcd')
         self.assertEqual(decompress('<(<(a)(b)>/<(d)>)>/<(e)(f)>'), 'adbdeadbdf')
         self.assertEqual(decompress('<<((a))((b))>/<((d))>>/<(e)>'), 'aedebede')
+        self.assertEqual(decompress('<(A)>/<(<(BB)(C)>/<(A)>)(B)>'), 'ABBACAAB')
 
     def test_combined(self):
         self.assertEqual(decompress('S[(2*(ab))(c)]'), 'ababccabab')
@@ -28,6 +30,29 @@ class Test_Decompressor(unittest.TestCase):
         self.assertEqual(decompress('<2*((a)(b))>/<(f)>'), 'afbfafbf')
         self.assertEqual(decompress('3*(S[(a),(b)])'), 'abaabaaba')
         self.assertEqual(decompress('<(a)>/<S[((b)),((c))]>'), 'abacab')
+
+class Test_Compressor(unittest.TestCase):
+    def test_iteration(self):
+        strings = ['AAAA', 'ABAB', 'AABB', 'AAAAAA', 'AAABBB', 'AAAAAAAA']
+        compress_decompress_compare(strings)
+
+    def test_symmetry(self):
+        strings = ['ABA', 'ABCBA', 'BACABAC', 'BAAB', 'CAACBDB']
+        compress_decompress_compare(strings)
+
+    def test_symmetry(self):
+        strings = ['ABAD', 'ABACAD', 'CDACDBCDE', 'QAQBQCQD']
+        compress_decompress_compare(strings)
+
+    def test_combined(self):
+        strings = ['ABACAB', 'AABCBAA', 'AABAACAAB']
+        compress_decompress_compare(strings)
+
+    def compress_decompress_compare(strings):
+        for string in strings:
+            answers, _ = compress(string)
+            for ans in answers:
+                self.assertEqual(decompress(ans), string)
 
 if __name__ == '__main__':
     unittest.main()
