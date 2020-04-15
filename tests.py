@@ -45,7 +45,7 @@ class Test_Compressor(unittest.TestCase):
         self.compress_decompress_compare(strings)
 
     def test_combined(self):
-        strings = ['ABACAB', 'AABCBAA', 'AABAACAAB']
+        strings = ['ABACAB', 'AABCBAA', 'AABAACAAB', 'ABABCBABA']
         self.compress_decompress_compare(strings)
 
     def compress_decompress_compare(self, strings):
