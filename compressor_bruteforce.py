@@ -1,4 +1,4 @@
-from decompressor import decompress
+import sys
 
 def create_splits(string):
     all_splits = []
@@ -106,10 +106,12 @@ def compress(string):
             all_codes.append(''.join(s))
         new_codes = compress_split(s)
         splits += new_codes
-    return all_splits, all_codes
+    return all_codes, all_splits
 
 if __name__ == '__main__':
-    s = 'AAAA'
-    splits, codes = compress(s)
-    for a in codes:
-        print(a, decompress(a))
+    if len(sys.argv) != 2:
+        print('USAGE: compressor_bruteforce.py <code>')
+        print('Code with spaces must be put in double quotes.')
+    elif sys.argv[1]:
+        for a in compress(sys.argv[1])[0]:
+            print(a)
