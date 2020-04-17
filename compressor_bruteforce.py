@@ -105,17 +105,17 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('USAGE: compressor_bruteforce.py <code>')
         print('Code with spaces must be put in double quotes.')
+    else:
+        lowest_codes = []
+        lowest_load = float('inf')
+        for c in compress(sys.argv[1])[0]:
+            load = I_new_load(c)
+            if load < lowest_load:
+                lowest_codes = [c]
+                lowest_load = load
+            elif load == lowest_load:
+                lowest_codes.append(c)
 
-    lowest_codes = []
-    lowest_load = float('inf')
-    for c in compress(sys.argv[1])[0]:
-        load = I_new_load(c)
-        if load < lowest_load:
-            lowest_codes = [c]
-            lowest_load = load
-        elif load == lowest_load:
-            lowest_codes.append(c)
-
-    print('CODES WITH LOWEST LOAD OF ' + str(lowest_load) + ' sip :')
-    for c in lowest_codes:
-        print(c)
+        print('CODES WITH LOWEST LOAD OF ' + str(lowest_load) + ' sip :')
+        for c in lowest_codes:
+            print(c)
