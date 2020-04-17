@@ -28,23 +28,24 @@ def build_alternation(split, i, j, offset, elems):
         new_elem = A_chunk + '/' + repeat
     return split[:i] + [new_elem] + split[j:]
 
+# Finds all possible operations in a given list of substrings
 def compress_split(split):
     new_codes = []
 
-    # Iterations
+    # Create iterations
     for i in range(len(split)-1):
         for j in range(i+2, len(split)+1):
             if len(set(split[i:j])) == 1:
               new_codes.append(build_iteration(split, i, j))
 
-    # Symmetries
+    # Create symmetries
     for i in range(len(split)-2):
         for j in range(i+3, len(split)+1):
             pivot = int((j-i)/2)
             if split[i:i+pivot] == split[j-pivot:j][:: -1] and \
                 split[i+pivot] == split[j-pivot-1]:
 
-                # Split
+                # Create all possible codes for the S-argument
                 argument_split = \
                      ['('+ a +')' for a in split[i:i+pivot]]
                 _, splits = compress(argument_split)
@@ -52,7 +53,7 @@ def compress_split(split):
                     new_codes.append(build_symmetry(\
                         split, i, j, pivot, elems = s))
 
-    # Alternations
+    # Create alternations
     for i in range(len(split)-3):
         for j in range(i+4, len(split)+1):
             # Alternations result in an even number of elements
@@ -68,6 +69,7 @@ def compress_split(split):
 
             if offsets != []:
                 for offset in offsets:
+                    # Create all possible codes for the A-argument
                     argument_split = \
                         ['('+ a +')' for a in split[i:j][1-offset::2]]
                     _, splits = compress(argument_split)
@@ -77,11 +79,15 @@ def compress_split(split):
 
     return new_codes
 
+# Create a compression of a string
 def compress(characters):
+    # Get all possible ways to split a string into substrings
     splits = create_splits(characters)
 
+    # Keep track of the processed splits and resulting codes
     all_splits = []
     all_codes = []
+
     while splits != []:
         s = splits.pop(0)
         if s in all_splits:
@@ -89,6 +95,8 @@ def compress(characters):
         all_splits.append(s)
         if ''.join(s) not in all_codes:
             all_codes.append(''.join(s))
+
+        # Create new code with compressed elements, add to splits
         new_codes = compress_split(s)
         splits += new_codes
     return all_codes, all_splits
@@ -97,6 +105,17 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('USAGE: compressor_bruteforce.py <code>')
         print('Code with spaces must be put in double quotes.')
-    elif sys.argv[1]:
-        for a in compress(sys.argv[1])[0]:
-            print(a)
+
+    lowest_codes = []
+    lowest_load = float('inf')
+    for c in compress(sys.argv[1])[0]:
+        load = I_new_load(c)
+        if load < lowest_load:
+            lowest_codes = [c]
+            lowest_load = load
+        elif load == lowest_load:
+            lowest_codes.append(c)
+
+    print('CODES WITH LOWEST LOAD OF ' + str(lowest_load) + ' sip :')
+    for c in lowest_codes:
+        print(c)

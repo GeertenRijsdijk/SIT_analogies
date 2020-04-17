@@ -49,7 +49,7 @@ def get_chunks(s):
 
 
 if __name__ == '__main__':
-    # Some tests
+    # Some quick tests
     d = {
         'ABCDEF':6,
         '<(aba)>/<(cdacd)(bacdacdab)>':20,
