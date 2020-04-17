@@ -1,5 +1,6 @@
 import sys
 from split import create_splits
+from complexity_metrics import I_old_load, P_load, I_a_load, I_new_load
 
 # Turns a part of a list of substrings into an iteration
 def build_iteration(split, i, j):
@@ -7,31 +8,24 @@ def build_iteration(split, i, j):
     return split[:i] + [new_elem] + split[j:]
 
 # Turns a part of a list of substrings into an symmetry
-def build_symmetry(split, i, j, pivot, elems = None):
+def build_symmetry(split, i, j, pivot, elems):
     new_elem = 'S['
-    if elems:
-        for arg in elems:
-            new_elem += arg
-    else:
-        for arg in split[i:i+pivot]:
-            new_elem += '(' + arg +')'
+    for arg in elems:
+        new_elem += arg
     if (j-i)%2 == 1:
         new_elem += ','
-    new_elem += '(' + split[i+pivot] + ')]'
+        new_elem += '(' + split[i+pivot] + ')'
+    new_elem += ']'
     return split[:i] + [new_elem] + split[j:]
 
 # Turns a part of a list of substrings into an alternation
-def build_alternation(split, i, j, offset, elems = None):
-    alt_half = '<(' + split[i+offset] + ')>'
-    if not elems:
-        other_elems = split[i:j][1 - offset::2]
-        other_half = '<' + ''.join(['(' + e + ')' for e in other_elems]) + '>'
-    else:
-        other_half = '<' + ''.join(elems) + '>'
+def build_alternation(split, i, j, offset, elems):
+    repeat = '<(' + split[i+offset] + ')>'
+    A_chunk = '<' + ''.join(elems) + '>'
     if offset == 0:
-        new_elem = alt_half + '/' + other_half
+        new_elem = repeat + '/' + A_chunk
     else:
-        new_elem = other_half + '/' + alt_half
+        new_elem = A_chunk + '/' + repeat
     return split[:i] + [new_elem] + split[j:]
 
 def compress_split(split):
@@ -46,15 +40,14 @@ def compress_split(split):
     # Symmetries
     for i in range(len(split)-2):
         for j in range(i+3, len(split)+1):
-            pivot = int((j-i-1)/2)
+            pivot = int((j-i)/2)
             if split[i:i+pivot] == split[j-pivot:j][:: -1] and \
-            split[i+pivot] == split[j-pivot-1]:
-                new_codes.append(build_symmetry(split, i, j, pivot))
+                split[i+pivot] == split[j-pivot-1]:
 
+                # Split
                 argument_split = \
                      ['('+ a +')' for a in split[i:i+pivot]]
                 _, splits = compress(argument_split)
-
                 for s in splits:
                     new_codes.append(build_symmetry(\
                         split, i, j, pivot, elems = s))
@@ -75,14 +68,13 @@ def compress_split(split):
 
             if offsets != []:
                 for offset in offsets:
-                    new_codes.append(build_alternation(split, i, j, offset))
-                    # Special codes within alternations
                     argument_split = \
                         ['('+ a +')' for a in split[i:j][1-offset::2]]
                     _, splits = compress(argument_split)
                     for s in splits:
                         new_codes.append(build_alternation(\
                             split, i, j, offset, elems = s))
+
     return new_codes
 
 def compress(characters):

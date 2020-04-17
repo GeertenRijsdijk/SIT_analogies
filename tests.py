@@ -1,6 +1,7 @@
 import unittest
 from decompressor import decompress
 from compressor_bruteforce import compress
+from random import choice
 
 class Test_Decompressor(unittest.TestCase):
 
@@ -53,6 +54,13 @@ class Test_Compressor(unittest.TestCase):
             answers, _ = compress(string)
             for ans in answers:
                 self.assertEqual(decompress(ans), string)
+
+    def test_randomized_strings(self):
+        strings = []
+        for i in range(5, 10):
+            string = ''.join([choice(['A','B','C', 'D']) for _ in range(i)])
+            strings.append(string)
+        self.compress_decompress_compare(strings)
 
 if __name__ == '__main__':
     unittest.main()
