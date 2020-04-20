@@ -104,7 +104,8 @@ def compress(characters):
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('USAGE: compressor_bruteforce.py <code>')
-        print('Code with spaces must be put in double quotes.')
+    elif not sys.argv[1].isalpha():
+        print('Code must contain only letters!')
     else:
         lowest_codes = []
         lowest_load = float('inf')

@@ -28,6 +28,8 @@ def I_a_load(string):
 def I_new_load(string):
     return P_load(string) + len(get_chunks(string))
 
+# Find the number of chunks in a string that have more than one symbol and
+# are not S-chunks
 def get_chunks(s):
     par_stack = []
     symm_depth = 0
@@ -49,7 +51,7 @@ def get_chunks(s):
 
 
 if __name__ == '__main__':
-    # Some quick tests
+    # Some quick tests from literature + PISA algorithm
     d = {
         'ABCDEF':6,
         '<(aba)>/<(cdacd)(bacdacdab)>':20,
@@ -69,6 +71,7 @@ if __name__ == '__main__':
         'S[(A), (B)] 3*(B) 6*(B A) 2*(A)':7,
 
         'ab2 * (acd) S[(a) (b), (a)] 2 * (cda) b':14,
+        'S[S[S[(((A R))), (((B)))] ((C)), ((D))], (Q)]':7,
 
     }
 
