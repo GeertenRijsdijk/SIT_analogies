@@ -67,15 +67,14 @@ def compress_split(split):
             if len(set(split[i:j][1::2])) == 1:
                 offsets.append(1)
 
-            if offsets != []:
-                for offset in offsets:
-                    # Create all possible codes for the A-argument
-                    argument_split = \
-                        ['('+ a +')' for a in split[i:j][1-offset::2]]
-                    _, splits = compress(argument_split)
-                    for s in splits:
-                        new_codes.append(build_alternation(\
-                            split, i, j, offset, elems = s))
+            for offset in offsets:
+                # Create all possible codes for the A-argument
+                argument_split = \
+                    ['('+ a +')' for a in split[i:j][1-offset::2]]
+                _, splits = compress(argument_split)
+                for s in splits:
+                    new_codes.append(build_alternation(\
+                        split, i, j, offset, elems = s))
 
     return new_codes
 
