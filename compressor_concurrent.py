@@ -113,7 +113,7 @@ class Compression():
             self.n_active_actors += 3
 
 if __name__ == '__main__':
-    s = 'abcccccccba'
+    s = 'abcccba'
 
     time0 = time.time()
     encodings, _ = compress(s)

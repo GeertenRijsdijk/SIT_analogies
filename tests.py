@@ -25,12 +25,21 @@ class Test_Decompressor(unittest.TestCase):
         self.assertEqual(decompress('<<((a))((b))>/<((d))>>/<(e)>'), 'aedebede')
         self.assertEqual(decompress('<(A)>/<(<(BB)(C)>/<(A)>)(B)>'), 'ABBACAAB')
 
+    def test_sequence(self):
+        self.assertEqual(decompress('{(a),4,1}'), 'abcd')
+        self.assertEqual(decompress('{((a)),4,1}'), '(a)(b)(c)(d)')
+        self.assertEqual(decompress('{((a)),4,1}'), '(a)(b)(c)(d)')
+        self.assertEqual(decompress('{(d),4,-1}'), 'dcba')
+        self.assertEqual(decompress('{(A),4,4}'), 'AEIM')
+
     def test_combined(self):
         self.assertEqual(decompress('S[(2*(ab))(c)]'), 'ababccabab')
         self.assertEqual(decompress('S[2*((a)(b))(c)]'), 'ababccbaba')
         self.assertEqual(decompress('<2*((a)(b))>/<(f)>'), 'afbfafbf')
         self.assertEqual(decompress('3*(S[(a),(b)])'), 'abaabaaba')
         self.assertEqual(decompress('<(a)>/<S[((b)),((c))]>'), 'abacab')
+        self.assertEqual(decompress('<(A)>/<{((A)),4,2}>'), 'AAACAEAG')
+        self.assertEqual(decompress('S[{((A)),3,1},(D)]'), 'ABCDCBA')
 
 class Test_Compressor(unittest.TestCase):
     def test_iteration(self):

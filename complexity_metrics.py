@@ -28,6 +28,14 @@ def I_a_load(string):
 def I_new_load(string):
     return P_load(string) + len(get_chunks(string))
 
+def I_seq_load(string):
+    load = 0
+    for c in string:
+        if c.isalpha() or c in ['*', '/', '{']:
+            load += 1
+    return load
+    #return I_new_load(string) + string.count('{')*2
+
 # Find the number of chunks in a string that have more than one symbol and
 # are not S-chunks
 def get_chunks(s):

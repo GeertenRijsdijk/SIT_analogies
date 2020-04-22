@@ -1,32 +1,6 @@
 import sys
-from split import create_splits
-from complexity_metrics import I_old_load, P_load, I_a_load, I_new_load
-
-# Turns a part of a list of substrings into an iteration
-def build_iteration(split, i, j):
-    new_elem = str(j - i) + '*(' + split[i] + ')'
-    return split[:i] + [new_elem] + split[j:]
-
-# Turns a part of a list of substrings into an symmetry
-def build_symmetry(split, i, j, pivot, elems):
-    new_elem = 'S['
-    for arg in elems:
-        new_elem += arg
-    if (j-i)%2 == 1:
-        new_elem += ','
-        new_elem += '(' + split[i+pivot] + ')'
-    new_elem += ']'
-    return split[:i] + [new_elem] + split[j:]
-
-# Turns a part of a list of substrings into an alternation
-def build_alternation(split, i, j, offset, elems):
-    repeat = '<(' + split[i+offset] + ')>'
-    A_chunk = '<' + ''.join(elems) + '>'
-    if offset == 0:
-        new_elem = repeat + '/' + A_chunk
-    else:
-        new_elem = A_chunk + '/' + repeat
-    return split[:i] + [new_elem] + split[j:]
+from complexity_metrics import I_new_load
+from tools import build_iteration, build_symmetry, build_alternation, create_splits
 
 # Finds all possible operations in a given list of substrings
 def compress_split(split):
