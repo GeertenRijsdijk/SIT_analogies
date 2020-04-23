@@ -38,8 +38,9 @@ def add_distances(code, lhs):
                 if abs(dist) < min_dist:
                     min_dist = dist
                     min_symb = s
+                    
             # ... and add c to the code as a distance from that symbol.
-            if dist >= 0:
+            if min_dist >= 0:
                 new_code += min_symb + '+' + str(min_dist)
             else:
                 new_code += min_symb + '-' + str(abs(min_dist))
