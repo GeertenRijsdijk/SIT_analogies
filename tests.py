@@ -36,8 +36,8 @@ class Test_Decompressor(unittest.TestCase):
         self.assertEqual(decompress('S[(2*(ab))(c)]'), 'ababccabab')
         self.assertEqual(decompress('S[2*((a)(b))(c)]'), 'ababccbaba')
         self.assertEqual(decompress('<2*((a)(b))>/<(f)>'), 'afbfafbf')
-        self.assertEqual(decompress('3*(S[(a),(b)])'), 'abaabaaba')
-        self.assertEqual(decompress('<(a)>/<S[((b)),((c))]>'), 'abacab')
+        self.assertEqual(decompress('3*(S[(1),(2)])'), '121121121')
+        self.assertEqual(decompress('<(1)>/<S[((2)),((3))]>'), '121312')
         self.assertEqual(decompress('<(A)>/<{((A)),4,2}>'), 'AAACAEAG')
         self.assertEqual(decompress('S[{((A)),3,1},(D)]'), 'ABCDCBA')
 

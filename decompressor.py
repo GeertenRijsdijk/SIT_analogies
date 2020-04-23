@@ -26,7 +26,7 @@ def is_basic(s):
 
 # 'quick and dirty' way of getting arguments. Not proud of this one.
 def get_arguments(code):
-    code = re.sub("[^a-zA-Z()]", '', code)
+    code = re.sub("[^a-zA-Z()\d]", '', code)
     stack = []
     arguments = []
     for i, c in enumerate(code):

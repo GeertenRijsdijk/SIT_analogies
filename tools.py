@@ -13,7 +13,7 @@ EX: 'abc'           =>  [['a', 'b', 'c'], ['a', 'bc'], ['ab, 'c'], ['abc']]
 EX: ['a', 'b', 'c'] =>  [['a', 'b', 'c'], ['a', 'bc'], ['ab, 'c'], ['abc']]
 '''
 
-alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
 def create_splits(chars):
     all_splits = []

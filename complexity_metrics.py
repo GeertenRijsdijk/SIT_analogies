@@ -2,7 +2,7 @@
 def I_old_load(string):
     load = 0
     for i, c in enumerate(string):
-        if c.isalpha() or c == '*':
+        if c.isalpha() or c.isdigit():
             load += 1
     return load
 
@@ -14,13 +14,15 @@ def P_load(string):
             load += 1
         elif c == 'S' and (i == len(string)-1 or not string[i+1] == '['):
             load += 1
+        elif c.isdigit() and (i == len(string)-1 or not string[i+1] == '*'):
+            load += 1
     return load
 
 # Complexity metric using number of symbols + operators
 def I_a_load(string):
     load = 0
     for i, c in enumerate(string):
-        if c.isalpha() or c == '*' or c == '/':
+        if c.isalpha() or c.isdigit() or c == '/':
             load += 1
     return load
 
@@ -31,7 +33,7 @@ def I_new_load(string):
 def I_seq_load(string):
     load = 0
     for c in string:
-        if c.isalpha() or c in ['*', '/', '{']:
+        if c.isalpha() or c.isdigit() or c in ['/', '{']:
             load += 1
     return load
     #return I_new_load(string) + string.count('{')*2

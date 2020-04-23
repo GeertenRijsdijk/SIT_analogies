@@ -106,8 +106,8 @@ def compress(characters):
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('USAGE: compressor_optimized.py <code>')
-    elif not sys.argv[1].isalpha():
-        print('Code must contain only letters!')
+    elif not sys.argv[1].isalnum():
+        print('Code must contain only alphanumeric characters!')
     else:
         lowest_codes = []
         lowest_load = float('inf')
