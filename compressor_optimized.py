@@ -4,7 +4,6 @@ from tools import build_iteration, build_symmetry, build_alternation, build_sequ
 
 # Finds all possible operations in a given list of substrings
 def compress_split(split):
-    alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     new_codes = []
 
     # Create sequences
@@ -119,6 +118,6 @@ if __name__ == '__main__':
             elif load == lowest_load:
                 lowest_codes.append(c)
 
-        print('CODES WITH LOWEST LOAD OF ' + str(lowest_load) + ' sip :')
+        print('CODES WITH LOWEST LOAD OF ' + str(lowest_load) + '.')
         for c in lowest_codes:
             print(c)

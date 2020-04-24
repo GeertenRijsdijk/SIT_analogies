@@ -32,8 +32,16 @@ def I_new_load(string):
 
 def I_seq_load(string):
     load = 0
-    for c in string:
-        if c.isalpha() or c.isdigit() or c in ['/', '{']:
+    seq_depth = 0
+    for i, c in enumerate(string):
+        if c == '{':
+            seq_depth += 1
+        elif c == '}':
+            seq_depth -= 1
+
+        if c.isalpha() or c in ['/', '{']:
+            load += 1
+        if c.isdigit() and (seq_depth == 0 or string[i-1] == '('):
             load += 1
     return load
     #return I_new_load(string) + string.count('{')*2
