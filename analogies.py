@@ -66,10 +66,13 @@ def add_distances(code, lhs):
 
     return new_code
 
+# Find and replace one chunk in a code with another one
 def replace_chunks(code, l1, r1):
     par_stack = []
     args = []
     indices = []
+    # Create a list of all operator arguments and single symbols
+    # And a separate list for their indices
     for i, c in enumerate(code):
         if c == '(':
             par_stack.append(i)
@@ -89,9 +92,11 @@ def replace_chunks(code, l1, r1):
             args.append('-')
             indices.append(i)
 
+    # Create a string of all symbols in the code
     symb_string = ''.join(args)
     symb_string = symb_string.replace('(', '').replace(')', '')
 
+    # Search for the chunk in the symbols
     new_code = code
     for i in range(len(symb_string) - len(l1)+1):
         substring = symb_string[i:i+len(l1)]
@@ -100,12 +105,16 @@ def replace_chunks(code, l1, r1):
         lengths = [len(args[j]) for j in range(i,i+len(l1))]
         if len(set(lengths)) != 1:
             continue
+        # When the chunk is found ...
+        # ... find the start/end points of the chunk in the original code.
         s, e = indices[i], indices[i+len(l1)-1]+len(args[i+len(l1)-1])
         n_pars = args[i].count('(')
+        # Create a new code with the specified new chunk ...
         rep_list = [n_pars*'(' + r + n_pars * ')' for r in r1]
         if ',' in code[s:e]:
             rep_list = rep_list[:-1] + [','] + rep_list[-1:]
         rep_code = ''.join(rep_list)
+        # ... and replace the old chunk with the new chunk.
         new_code = new_code.replace(code[s:e], rep_code)
     return new_code
 
