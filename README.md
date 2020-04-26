@@ -3,6 +3,7 @@ Using a Structural Information Theory approach on Hofstadter`s analogies
 
 Files:
 
+- README.md: The file you are currently reading.
 - analogies.py: An implementation of the theoretical idea of using SIT to complete Hofstadter's analogies.
 - complexity_metrics.py: A collection of complexity metrics used to calculate the complexity of SIT codes.
 - compressor_bruteforce.py: Implementation of a compressor that creates every possible encoding of a given string.
