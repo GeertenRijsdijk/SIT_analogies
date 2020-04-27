@@ -1,44 +1,29 @@
 from compressor_bruteforce import compress
 from decompressor import decompress
-from complexity_metrics import I_new_load
-from tools import alphabet
+from complexity_metrics import I_new_load, analogy_load
+from tools import alphabet, is_symbol
 import sys
 
-# Check whether the ith character of a string is a symbol
-# (and not part of an operator)
-def is_symbol(code, i):
-    c = code[i]
-    # Not alphanumeric
-    if not c.isalnum():
-        return False
-    # Iteration
-    if i != len(code)-1 and code[i+1] == '*':
-        return False
-    # Symmetry
-    if c == 'S' and not (i == len(code) - 1 or code[i+1] != '['):
-        return False
-    # Distance
-    for j in range(0, i):
-        if code[i-j] in '+-':
-            return False
-        elif not code[i-j].isdigit():
-            break
-    if i < len(code)-1 and code[i+1] in '+-':
-        return False
-    return True
-
 # Given a list of codes, returns the codes with the lowest information load.
-def lowest_complexity(codes):
+def lowest_complexity(codes, metric = 'I_new'):
     lowest_codes = []
     lowest_load = float('inf')
-    for c in codes:
-        load = I_new_load(c)
+    for code in codes:
+        if metric == 'analogy':
+            load = analogy_load(code)
+        elif metric == 'I_new':
+            load = I_new_load(code)
+        else:
+            print('unknown metric, using I_new')
         if load < lowest_load:
-            lowest_codes = [c]
+            lowest_codes = [code]
             lowest_load = load
         elif load == lowest_load:
-            lowest_codes.append(c)
+            lowest_codes.append(code)
     return lowest_codes, lowest_load
+
+def rank_answers(l1, l2, r1, answers):
+    pass
 
 # Rewrites a code so it only uses symbols from a specified set, using distances.
 def add_distances(code, lhs):
@@ -68,6 +53,9 @@ def add_distances(code, lhs):
 
 # Find and replace one chunk in a code with another one
 def replace_chunks(code, l1, r1):
+    if l1 in code:
+        return code.replace(l1, r1)
+
     par_stack = []
     args = []
     indices = []
@@ -85,10 +73,7 @@ def replace_chunks(code, l1, r1):
             if arg.strip('()').isalnum() and len(arg.strip('()')) == 1:
                 args.append(code[start:i+1])
                 indices.append(start)
-        elif is_symbol(code, i):
-            args.append(c)
-            indices.append(i)
-        elif c in '[]{}<>/+-':
+        elif c in '*[]{}<>/+-':
             args.append('-')
             indices.append(i)
 
@@ -148,7 +133,7 @@ def remove_distances(code):
     for i, c in enumerate(code):
         # ... add the character to the new code.
         new_code += c
-        if is_symbol(code, i):
+        if is_symbol(code, i) and c not in symbols:
             symbols.append(c)
         if c == '(':
             par_stack.append(i)
@@ -173,70 +158,48 @@ def remove_distances(code):
                 symbols.append(new_symb)
     return new_code
 
-
-# Predicts an analogy by finding a structure in the lefthandside of an analogy
-# and applying that same structure to the righthandside.
-def predict_analogy(l1, l2, r1):
-    c, _ = compress(l1+l2)
-    codes, load = lowest_complexity(c)
-
+def find_solves_of_codes(codes, l1, r1):
     solves = []
     for code in codes:
         #print('1:', code)
-        code = add_distances(code, l1)
-        #print('2:', code)
-        code = replace_symbols(code, l1, r1)
-        #print('3:', code)
-        code = remove_distances(code)
-        #print('4:', code)
-        d = decompress(code)
-        solves.append(d[len(r1):])
+        new_code = add_distances(code, l1)
+        #print('2:', new_code)
+        new_code = replace_symbols(new_code, l1, r1)
+        #print('3:', new_code)
+        new_code = remove_distances(new_code)
+        #print('4:', new_code)
+        d = decompress(new_code)
+
+        if d[:len(r1)] == r1:
+            complexity = analogy_load(code) + analogy_load(new_code)
+            solves.append((d[len(r1):], round(complexity,2), code, new_code))
+        #print('>', solves[-1])
 
     return solves
+
+# Predicts an analogy by finding a structure in the lefthandside of an analogy
+# and applying that same structure to the righthandside.
+def predict_analogy(string):
+    try:
+        l, r = string.split('::')
+        l1, l2 = l.split(':')
+        r1, r2 = r.split(':')
+    except:
+        print('Analogy should be of form A:B::C:?')
+        quit()
+
+    codes_1, _ = compress(l1+l2)
+    solves_1 = find_solves_of_codes(codes_1, l1, r1)
+    codes_2, _ = compress(l1+r1)
+    solves_2 = find_solves_of_codes(codes_2, l1, l2)
+    solves = sorted(solves_1 + solves_2, key = lambda x:x[1])
+    return solves[:10]
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('USAGE: analogies.py <analogy>')
         print('Analogy should be of form A:B::C:?')
     else:
-        try:
-            l, r = sys.argv[1].split('::')
-            l1, l2 = l.split(':')
-            r1, r2 = r.split(':')
-        except:
-            print('Analogy should be of form A:B::C:?')
-            quit()
-
-        solves_1 = predict_analogy(l1, l2, r1)
-        solves_2 = predict_analogy(l1, r1, l2)
-
-        for solve in solves_1 + solves_2:
+        solves = predict_analogy(sys.argv[1])
+        for solve in solves:
             print(solve)
-
-# Removes the distance operators to find the correct symbols.
-# def remove_distances(code):
-#     symbols = []
-#     new_code = ''
-#     for i in range(0, len(code)):
-#         if code[i] in ['+', '-']:
-#             snippet = code[i-1:i+2]
-#             if snippet[0] == '$':
-#                 start_symb = symbols[-1]
-#             else:
-#                 start_symb = snippet[0]
-#
-#             if code[i] == '+':
-#                 new_symbol = alphabet[alphabet.index(start_symb) \
-#                     + int(snippet[2])]
-#             else:
-#                 new_symbol = alphabet[alphabet.index(start_symb) \
-#                     - int(snippet[2])]
-#             new_code += new_symbol
-#             symbols.append(new_symbol)
-#
-#         elif '+' not in code[max(i-1,0):i+2] and '-' not in code[max(i-1,0):i+2]:
-#             new_code += code[i]
-#
-#         if is_symbol(code, i) and code[i] not in symbols:
-#             symbols.append(code[i])
-#     return new_code

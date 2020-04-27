@@ -15,6 +15,29 @@ EX: ['a', 'b', 'c'] =>  [['a', 'b', 'c'], ['a', 'bc'], ['ab, 'c'], ['abc']]
 
 alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
+# Check whether the ith character of a string is a symbol
+# (and not part of an operator)
+def is_symbol(code, i):
+    c = code[i]
+    # Not alphanumeric
+    if not c.isalnum():
+        return False
+    # Iteration
+    if i != len(code)-1 and code[i+1] == '*':
+        return False
+    # Symmetry
+    if c == 'S' and not (i == len(code) - 1 or code[i+1] != '['):
+        return False
+    # Distance
+    for j in range(0, i):
+        if code[i-j] in '+-':
+            return False
+        elif not code[i-j].isdigit():
+            break
+    if i < len(code)-1 and code[i+1] in '+-':
+        return False
+    return True
+
 def create_splits(chars):
     all_splits = []
 
