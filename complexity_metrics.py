@@ -1,3 +1,6 @@
+from math import ceil, log
+from tools import is_symbol
+
 # Complexity metric using number of symbols + iterations + symmetries
 def I_old_load(string):
     load = 0
@@ -29,6 +32,21 @@ def I_a_load(string):
 # Complexity metric using number of symbols + non-S-chunks
 def I_new_load(string):
     return P_load(string) + len(get_chunks(string))
+
+def analogy_load(string):
+    op_weights = {
+        '*':0.5,      # Iteration
+        '[':0.8,      # Symmetry
+        '/':1,      # Alternation
+    }
+    operators = [c for c in string if c in '[*/']  # Number of operators
+    symbols = [c for i, c in enumerate(string) if is_symbol(string, i)]
+    M = len(set(operators))
+    N = len(set(symbols))
+    load = sum([log(M) + op_weights[o] for o in operators])
+    load += sum([log(N) for _ in symbols])
+
+    return load
 
 def I_seq_load(string):
     load = 0
@@ -67,9 +85,11 @@ def get_chunks(s):
             chunks.append(s[i_start:i+1])
     return chunks
 
-
 if __name__ == '__main__':
     # Some quick tests from literature + PISA algorithm
+    print(analogy_load('S[(A),(B)]S[(C)(F),(B)]'))
+    print(analogy_load('<(A)>/<(B)(C)(D)(E)>'))
+    quit()
     d = {
         'ABCDEF':6,
         '<(aba)>/<(cdacd)(bacdacdab)>':20,
@@ -93,9 +113,9 @@ if __name__ == '__main__':
 
     }
 
-    for s, sip in d.items():
-        if I_new_load(s) != sip:
-            print(s, 'FAILED!')
-            print('RETURNED:', I_new_load(s))
-            print('EXPECTED:', sip)
-    print('Done')
+    # for s, sip in d.items():
+    #     if I_new_load(s) != sip:
+    #         print(s, 'FAILED!')
+    #         print('RETURNED:', I_new_load(s))
+    #         print('EXPECTED:', sip)
+    # print('Done')
