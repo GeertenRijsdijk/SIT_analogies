@@ -169,6 +169,7 @@ def find_solves_of_codes(codes, l1, r1):
         new_code = remove_distances(new_code)
         #print('4:', new_code)
         d = decompress(new_code)
+        #print(d)
 
         if d[:len(r1)] == r1:
             complexity = analogy_load(code) + analogy_load(new_code)
@@ -179,7 +180,7 @@ def find_solves_of_codes(codes, l1, r1):
 
 # Predicts an analogy by finding a structure in the lefthandside of an analogy
 # and applying that same structure to the righthandside.
-def predict_analogy(string):
+def predict_analogy(string, n_answers):
     try:
         l, r = string.split('::')
         l1, l2 = l.split(':')
@@ -193,13 +194,26 @@ def predict_analogy(string):
     codes_2, _ = compress(l1+r1)
     solves_2 = find_solves_of_codes(codes_2, l1, l2)
     solves = sorted(solves_1 + solves_2, key = lambda x:x[1])
-    return solves[:10]
+    if n_answers == 'all':
+        return solves
+    else:
+        return solves[:n_answers]
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print('USAGE: analogies.py <analogy>')
+    if len(sys.argv) < 2:
+        print('USAGE: analogies.py <analogy> <n answers>')
         print('Analogy should be of form A:B::C:?')
-    else:
-        solves = predict_analogy(sys.argv[1])
-        for solve in solves:
-            print(solve)
+        print('Leave <n answers> empty for all answers.')
+        quit()
+    n_answers = 'all'
+    if len(sys.argv) == 3:
+        if (not sys.argv[2].isdigit() or int(sys.argv[2]) <= 0):
+            print('USAGE: analogies.py <analogy> <n answers>')
+            print('<n answers> should be a positive, nonzero integer.')
+            quit()
+        else:
+            n_answers = int(sys.argv[2])
+
+    solves = predict_analogy(sys.argv[1], n_answers)
+    for solve in solves:
+        print(solve)

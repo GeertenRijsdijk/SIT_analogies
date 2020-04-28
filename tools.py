@@ -5,15 +5,35 @@ Geerten Rijsdijk (11296720)
 A variety of helper functions used in multiple algorithms
 '''
 
-'''
-Returns every way a string can be split into substrings,
-or every way a list of strings can be combined into substrings.
 
-EX: 'abc'           =>  [['a', 'b', 'c'], ['a', 'bc'], ['ab, 'c'], ['abc']]
-EX: ['a', 'b', 'c'] =>  [['a', 'b', 'c'], ['a', 'bc'], ['ab, 'c'], ['abc']]
-'''
 
-alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+# Alphabet class for dealing with multiple alphabets
+class Alphabet():
+    def __init__(self):
+        self.lower = 'abcdefghijklmnopqrstuvwxyz'
+        self.upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        self.numbers = '1234567890'
+        self.alphabets = [self.lower, self.upper, self.numbers]
+        self.last_accessed = 0
+
+    def index(self, c):
+        for i, a in enumerate(self.alphabets):
+            if c in a:
+                self.last_accessed = i
+                return a.index(c)
+
+    def __getitem__(self, i):
+        l = len(self)
+        return self.alphabets[self.last_accessed][i%l]
+
+    def __len__(self):
+        return len(self.alphabets[self.last_accessed])
+
+    def __iter__(self):
+        return iter(self.alphabets[self.last_accessed])
+
+alphabet = Alphabet()
+
 
 # Check whether the ith character of a string is a symbol
 # (and not part of an operator)
@@ -38,6 +58,13 @@ def is_symbol(code, i):
         return False
     return True
 
+'''
+Returns every way a string can be split into substrings,
+or every way a list of strings can be combined into substrings.
+
+EX: 'abc'           =>  [['a', 'b', 'c'], ['a', 'bc'], ['ab, 'c'], ['abc']]
+EX: ['a', 'b', 'c'] =>  [['a', 'b', 'c'], ['a', 'bc'], ['ab, 'c'], ['abc']]
+'''
 def create_splits(chars):
     all_splits = []
 
