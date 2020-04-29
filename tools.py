@@ -22,6 +22,12 @@ class Alphabet():
                 self.last_accessed = i
                 return a.index(c)
 
+    def add(self, c, n):
+        for i, a in enumerate(self.alphabets):
+            if c in a:
+                self.last_accessed = i
+                return a[(a.index(c) + n)%len(a)]
+
     def __getitem__(self, i):
         l = len(self)
         return self.alphabets[self.last_accessed][i%l]
@@ -54,8 +60,6 @@ def is_symbol(code, i):
             return False
         elif not code[i-j].isdigit():
             break
-    if i < len(code)-1 and code[i+1] in '+-':
-        return False
     return True
 
 '''

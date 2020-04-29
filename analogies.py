@@ -2,6 +2,7 @@ from compressor_bruteforce import compress
 from decompressor import decompress
 from complexity_metrics import I_new_load, analogy_load
 from tools import alphabet, is_symbol
+from chunks import replace_left_right
 import sys
 
 # Given a list of codes, returns the codes with the lowest information load.
@@ -21,9 +22,6 @@ def lowest_complexity(codes, metric = 'I_new'):
         elif load == lowest_load:
             lowest_codes.append(code)
     return lowest_codes, lowest_load
-
-def rank_answers(l1, l2, r1, answers):
-    pass
 
 # Rewrites a code so it only uses symbols from a specified set, using distances.
 def add_distances(code, lhs):
@@ -50,79 +48,6 @@ def add_distances(code, lhs):
             symbols.append(c)
 
     return new_code
-
-# Find and replace one chunk in a code with another one
-def replace_chunks(code, l1, r1):
-    if l1 in code:
-        return code.replace(l1, r1)
-
-    par_stack = []
-    args = []
-    indices = []
-    # Create a list of all operator arguments and single symbols
-    # And a separate list for their indices
-    for i, c in enumerate(code):
-        if c == '(':
-            par_stack.append(i)
-        elif c == ')':
-            start = par_stack.pop(-1)
-            arg = code[start:i+1]
-            if len(args) > 0 and '(' + args[-1] + ')' == arg:
-                args.pop(-1)
-                indices.pop(-1)
-            if arg.strip('()').isalnum() and len(arg.strip('()')) == 1:
-                args.append(code[start:i+1])
-                indices.append(start)
-        elif c in '*[]{}<>/+-':
-            args.append('-')
-            indices.append(i)
-
-    # Create a string of all symbols in the code
-    symb_string = ''.join(args)
-    symb_string = symb_string.replace('(', '').replace(')', '')
-
-    # Search for the chunk in the symbols
-    new_code = code
-    for i in range(len(symb_string) - len(l1)+1):
-        substring = symb_string[i:i+len(l1)]
-        if l1 != substring:
-            continue
-        lengths = [len(args[j]) for j in range(i,i+len(l1))]
-        if len(set(lengths)) != 1:
-            continue
-        # When the chunk is found ...
-        # ... find the start/end points of the chunk in the original code.
-        s, e = indices[i], indices[i+len(l1)-1]+len(args[i+len(l1)-1])
-        n_pars = args[i].count('(')
-        # Create a new code with the specified new chunk ...
-        rep_list = [n_pars*'(' + r + n_pars * ')' for r in r1]
-        if ',' in code[s:e]:
-            rep_list = rep_list[:-1] + [','] + rep_list[-1:]
-        rep_code = ''.join(rep_list)
-        # ... and replace the old chunk with the new chunk.
-        new_code = new_code.replace(code[s:e], rep_code)
-    return new_code
-
-# Replaces all symbols in a code with different symbols symbols.
-def replace_symbols(code, l1, r1):
-
-    # Replace full chunks
-    chunk_code = replace_chunks(code, l1, r1)
-    if chunk_code != code:
-        return chunk_code
-
-    # Create a dictionary of corresponding symbols
-    correspondences = {}
-    for i, symbol in enumerate(l1):
-        if i < len(r1):
-            correspondences[i] = (symbol, r1[i])
-
-    # Replace the symbols with their replacements
-    for n, (orig, _) in correspondences.items():
-        code = code.replace(orig, '{'+str(n)+'}')
-    for n, (_, rep) in correspondences.items():
-        code = code.replace('{'+str(n)+'}', rep)
-    return code
 
 # Removes the distance operators to find the correct symbols.
 def remove_distances(code):
@@ -164,17 +89,18 @@ def find_solves_of_codes(codes, l1, r1):
         #print('1:', code)
         new_code = add_distances(code, l1)
         #print('2:', new_code)
-        new_code = replace_symbols(new_code, l1, r1)
+        new_codes = replace_left_right(new_code, l1, r1)
         #print('3:', new_code)
-        new_code = remove_distances(new_code)
-        #print('4:', new_code)
-        d = decompress(new_code)
-        #print(d)
+        for new_code in new_codes:
+            #print(new_code)
+            new_code = remove_distances(new_code)
+            #print('4:', new_code)
+            d = decompress(new_code)
 
-        if d[:len(r1)] == r1:
-            complexity = analogy_load(code) + analogy_load(new_code)
-            solves.append((d[len(r1):], round(complexity,2), code, new_code))
-        #print('>', solves[-1])
+            if d[:len(r1)] == r1:
+                complexity = analogy_load(code) + analogy_load(new_code)
+                solves.append((d[len(r1):], round(complexity,2), code, new_code))
+            #print('>', solves[-1])
 
     return solves
 
