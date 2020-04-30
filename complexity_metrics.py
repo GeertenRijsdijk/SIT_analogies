@@ -35,9 +35,9 @@ def I_new_load(string):
 
 def analogy_load(string):
     op_weights = {
-        '*':0.5,      # Iteration
-        '[':0.8,      # Symmetry
-        '/':1,      # Alternation
+        '*':1,      # Iteration
+        '[':1.3,      # Symmetry
+        '/':1.5,      # Alternation
     }
     operators = [c for c in string if c in '[*/']  # Number of operators
     symbols = [c for i, c in enumerate(string) if is_symbol(string, i)]
