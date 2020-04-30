@@ -2,7 +2,7 @@ from compressor_bruteforce import compress
 from decompressor import decompress
 from complexity_metrics import I_new_load, analogy_load
 from tools import alphabet, is_symbol
-from chunks import replace_left_right
+from symbol_replacement import replace_left_right
 import sys
 
 # Given a list of codes, returns the codes with the lowest information load.
@@ -106,7 +106,7 @@ def find_solves_of_codes(codes, l1, r1):
 
 # Predicts an analogy by finding a structure in the lefthandside of an analogy
 # and applying that same structure to the righthandside.
-def predict_analogy(string, n_answers):
+def predict_analogy(string, n_answers = 'all'):
     try:
         l, r = string.split('::')
         l1, l2 = l.split(':')
