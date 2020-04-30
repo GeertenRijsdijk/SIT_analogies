@@ -107,10 +107,7 @@ class Test_Analogy_Solver(unittest.TestCase):
                 part = ''.join([choice(['A','B','C', '1', '2', '3']) for _ in range(r)])
                 parts.append(part)
             analogy = parts[0] + ':' + parts[1] + '::' + parts[2] + ':?'
-            answers = predict_analogy(analogy)
-            answer = answers[0][0]
-            print(analogy, answer)
-
+            predict_analogy(analogy)
 
 if __name__ == '__main__':
     unittest.main()
