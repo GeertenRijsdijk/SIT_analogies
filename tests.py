@@ -1,7 +1,7 @@
 import unittest
 from decompressor import decompress
 from compressor_bruteforce import compress
-from random import choice
+from random import choice, randint
 from analogies import predict_analogy
 
 class Test_Decompressor(unittest.TestCase):
@@ -75,25 +75,41 @@ class Test_Compressor(unittest.TestCase):
 class Test_Analogy_Solver(unittest.TestCase):
     def test_analogies(self):
         tests = [
-            ('A:B::C:?', 'D'),
-            ('ABA:ACA::ADA:?', 'AEA'),
-            ('ABAC:ADAE::FBFC:?', 'FDFE'),
-            ('ABC:CBA::DEF:?', 'FED'),
-            ('ABC:CBA::DEFG:?', 'GFED'),
-            ('ABCB:ABCB::Q:?', 'Q'),
-            ('ABCB:Q::ABCB:?', 'Q'),
-            ('ABCB:Q::BCDC:?', 'R'),
-            ('IFP:JGQ::UEC:?', 'VFD'),
-            ('ABAC:ACAB::DEFG:?', 'FGDE'),
-            ('ABAC:ACAB::DEFG:?', 'DGFE'),
+            ('A:B::C:?', 'D', 1),
+            ('ABA:ACA::ADA:?', 'AEA', 1),
+            ('ABC:ABD::DEF:?', 'DEG', 1),
+            ('ABAC:ADAE::FBFC:?', 'FDFE', 3),
+            ('ABC:CBA::DEF:?', 'FED', 3),
+            ('ABC:CBA::DEFG:?', 'GFED', 3),
+            ('ABCB:ABCB::Q:?', 'Q', 3),
+            ('ABCB:Q::ABCB:?', 'Q', 3),
+            ('ABCB:Q::BCDC:?', 'R', 3),
+            ('IFP:JGQ::UEC:?', 'VFD', 3),
+            ('ABAC:ACAB::DEFG:?', 'FGDE', 3),
+            ('ABAC:ACAB::DEFG:?', 'DGFE', 3),
+            ('ABC:ABD::IJJKKK:?', 'IJJLLL', 3),
+            ('ABC:ABBACCC::DEF:?', 'DEEDFFF', 3),
         ]
-        for analogy, answer in tests:
-            self.single_analogy_test(analogy, answer)
+        for analogy, answer, top in tests:
+            self.single_analogy_test(analogy, answer, top)
 
-    def single_analogy_test(self, analogy, answer):
+    def single_analogy_test(self, analogy, answer, top):
         answers = predict_analogy(analogy)
-        codes = [a[0] for a in answers]
+        codes = [a[0] for a in answers][:top]
         self.assertIn(answer, codes)
+
+    # Run a bunch of random analogies to see whether it crashes
+    def test_analogy_crashes(self):
+        for i in range(50):
+            parts = []
+            for i in range(3):
+                r = randint(1,6)
+                part = ''.join([choice(['A','B','C', '1', '2', '3']) for _ in range(r)])
+                parts.append(part)
+            analogy = parts[0] + ':' + parts[1] + '::' + parts[2] + ':?'
+            answers = predict_analogy(analogy)
+            answer = answers[0][0]
+            print(analogy, answer)
 
 
 if __name__ == '__main__':
