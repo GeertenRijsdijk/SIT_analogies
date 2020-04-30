@@ -69,6 +69,25 @@ or every way a list of strings can be combined into substrings.
 EX: 'abc'           =>  [['a', 'b', 'c'], ['a', 'bc'], ['ab, 'c'], ['abc']]
 EX: ['a', 'b', 'c'] =>  [['a', 'b', 'c'], ['a', 'bc'], ['ab, 'c'], ['abc']]
 '''
+
+# Given a list of codes, returns the codes with the lowest information load.
+def lowest_complexity(codes, metric = 'I_new'):
+    lowest_codes = []
+    lowest_load = float('inf')
+    for code in codes:
+        if metric == 'analogy':
+            load = analogy_load(code)
+        elif metric == 'I_new':
+            load = I_new_load(code)
+        else:
+            print('unknown metric, using I_new')
+        if load < lowest_load:
+            lowest_codes = [code]
+            lowest_load = load
+        elif load == lowest_load:
+            lowest_codes.append(code)
+    return lowest_codes, lowest_load
+    
 def create_splits(chars):
     all_splits = []
 
