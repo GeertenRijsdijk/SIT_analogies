@@ -2,6 +2,7 @@ import unittest
 from decompressor import decompress
 from compressor_bruteforce import compress
 from random import choice
+from analogies import predict_analogy
 
 class Test_Decompressor(unittest.TestCase):
 
@@ -70,6 +71,30 @@ class Test_Compressor(unittest.TestCase):
             string = ''.join([choice(['A','B','C', 'D']) for _ in range(i)])
             strings.append(string)
         self.compress_decompress_compare(strings)
+
+class Test_Analogy_Solver(unittest.TestCase):
+    def test_analogies(self):
+        tests = [
+            ('A:B::C:?', 'D'),
+            ('ABA:ACA::ADA:?', 'AEA'),
+            ('ABAC:ADAE::FBFC:?', 'FDFE'),
+            ('ABC:CBA::DEF:?', 'FED'),
+            ('ABC:CBA::DEFG:?', 'GFED'),
+            ('ABCB:ABCB::Q:?', 'Q'),
+            ('ABCB:Q::ABCB:?', 'Q'),
+            ('ABCB:Q::BCDC:?', 'R'),
+            ('IFP:JGQ::UEC:?', 'VFD'),
+            ('ABAC:ACAB::DEFG:?', 'FGDE'),
+            ('ABAC:ACAB::DEFG:?', 'DGFE'),
+        ]
+        for analogy, answer in tests:
+            self.single_analogy_test(analogy, answer)
+
+    def single_analogy_test(self, analogy, answer):
+        answers = predict_analogy(analogy)
+        codes = [a[0] for a in answers]
+        self.assertIn(answer, codes)
+
 
 if __name__ == '__main__':
     unittest.main()
