@@ -12,3 +12,6 @@ Files:
 - decompressor.py: Implementation of a decompressor that writes a given code back to a string.
 - tests.py: A unittests class with tests for the bruteforce compressor and decompressor.
 - tools.py: A collection of smaller functions that are used by multiple other files.
+
+In the PISA folder:
+- QUIS.py: Implementation of the QUick Identification of all Substrings (QUIS) algorithm. 
