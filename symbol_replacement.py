@@ -272,7 +272,6 @@ def replace_left_right(string, l1, r1):
         code, _, _ = replace_symbols(dist_string, l1, list(r1))
         replacements.append(remove_distances(code))
 
-
     # If r1 is larger than l1 ...
     if len(l1) < len(r1):
         # ... try replacing l1 with compressed codes of r1.
@@ -288,12 +287,6 @@ def replace_left_right(string, l1, r1):
             continue
         rep_seq = replace_sequential_chunk(new_string, chunk, l1, r1)
         replacements.append(remove_distances(rep_seq))
-
-        # If it occurs as a chunk of one element
-        if len(chunk[0]) == 1:
-            rep, _ = replace_chunks(new_string, chunk, [r1])
-            replacements.append(remove_distances(rep))
-
 
         # If the length of the chunk is equal to the length of r1
         if len(chunk[0]) == len(r1):

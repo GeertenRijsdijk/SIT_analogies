@@ -33,8 +33,10 @@ def add_distances_symbols(code, lhs):
     return new_code
 
 '''
-Rewrites a code, keeping only symbols in a specified set (with indices).
-Contrary to the previous function, the elements in the set can be codes as well.
+Rewrites a code, keeping only elements in a specified set (with indices).
+These elements can contain multiple symbols.
+Symbols that occur in the elements, but are not actually in an element are
+replaced as well.
 
 Ex: add_distances_chunks('S[(AB),(C)]A', (['(AB)', '(C)'],[2, 7]))
 returns: 'S[(AB),(C)]($-2)'
