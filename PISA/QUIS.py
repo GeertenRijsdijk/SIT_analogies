@@ -61,6 +61,7 @@ def QUIS(string, labels):
                     if b == current_index:
                         LastOcc[p] = b
                     elif LastOcc[p]:
+                        NextOcc[prev_b] = None
                         NextOcc[LastOcc[p]] = b
                         LastOcc[p] = b
                     else:
@@ -84,36 +85,36 @@ def QUIS(string, labels):
 
 
 if __name__ == '__main__':
-    string = ''.join([choice(['A','B','C', 'D']) for _ in range(1000)])
-
+    string = ''.join([choice(['A','B','C', 'D']) for _ in range(10)])
     r = np.arange(1,len(string)+1)
     labels = np.repeat([r], len(string), axis = 0)
     labels = np.transpose(labels)
     for i in range(len(string)):
         labels[len(string)-i:, i] = 0
 
-    start = time.time()
-    for i in range(50):
-        m = QUIS(string, labels)
-    t = time.time() - start
-    print(t/50)
+    # start = time.time()
+    # for i in range(50):
+    m = QUIS(string, labels)
+    # t = time.time() - start
+    # print(t/50)
 
-    # print(m)
-    #
-    # for k, col in enumerate(m.T, start = 1):
-    #     d = {}
-    #     for b, i in enumerate(col):
-    #         if i == 0:
-    #             continue
-    #         if i in d:
-    #             d[i].append(string[b:b+k])
-    #         else:
-    #             d[i] = [string[b:b+k]]
-    #     print(d)
-    #     all_items = []
-    #     for k in d:
-    #         all_items += d[k]
-    #         if len(set(d[k])) != 1:
-    #             print('ERROR')
-    #     if len(set(all_items)) != len(d.keys()):
-    #         print('ERROR 2')
+    #print(m)
+
+    for k, col in enumerate(m.T, start = 1):
+        d = {}
+        for b, i in enumerate(col):
+            if i == 0:
+                continue
+            if i in d:
+                d[i].append(string[b:b+k])
+            else:
+                d[i] = [string[b:b+k]]
+
+        #print(d)
+        all_items = []
+        for k in d:
+            all_items += d[k]
+            if len(set(d[k])) != 1:
+                print('ERROR')
+        if len(set(all_items)) != len(d.keys()):
+            print('ERROR 2')
