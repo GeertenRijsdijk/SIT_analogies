@@ -5,7 +5,7 @@ import time
 def QUIS(string, labels):
     # Step 0: Initialize arrays/variables
     # String + 2 lists get extra element to create 1 based indexing
-    string = '-' + string
+    string = ['-'] + string
     NextList = [None for _ in string]
     NextOcc = ['-'] + [None for _ in string]
     LastOcc = ['-'] + [None for _ in string]
@@ -83,22 +83,26 @@ def QUIS(string, labels):
         k += 1
     return labels
 
-
-if __name__ == '__main__':
-    string = ''.join([choice(['A','B','C', 'D']) for _ in range(10)])
+def create_labels(string):
     r = np.arange(1,len(string)+1)
     labels = np.repeat([r], len(string), axis = 0)
     labels = np.transpose(labels)
     for i in range(len(string)):
         labels[len(string)-i:, i] = 0
+    return labels
 
+
+if __name__ == '__main__':
+    string = ''.join([choice(['A','B','C', 'D']) for _ in range(10)])
+    string = list(['a', 'bc', 'a', 'bc'])
+    labels = create_labels(string)
     # start = time.time()
     # for i in range(50):
     m = QUIS(string, labels)
     # t = time.time() - start
     # print(t/50)
 
-    #print(m)
+    print(m)
 
     for k, col in enumerate(m.T, start = 1):
         d = {}
@@ -110,11 +114,13 @@ if __name__ == '__main__':
             else:
                 d[i] = [string[b:b+k]]
 
-        #print(d)
+        print(d)
         all_items = []
         for k in d:
             all_items += d[k]
-            if len(set(d[k])) != 1:
+            x = dict((x[0], x) for x in d[k]).values()
+            if len(x) != 1:
                 print('ERROR')
-        if len(set(all_items)) != len(d.keys()):
+        all_items = dict((x[0], x) for x in all_items).values()
+        if len(all_items) != len(d.keys()):
             print('ERROR 2')
