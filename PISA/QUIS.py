@@ -91,6 +91,9 @@ def create_labels(string):
         labels[len(string)-i:, i] = 0
     return labels
 
+def QUIS2(g, labels):
+    
+
 
 if __name__ == '__main__':
     string = ''.join([choice(['A','B','C', 'D']) for _ in range(10)])
