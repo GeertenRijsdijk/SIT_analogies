@@ -114,13 +114,13 @@ class Test_Analogy_Solver(unittest.TestCase):
 
 class Test_PISA(unittest.TestCase):
     def test_pisa(self):
-        print('TESTING PISA')
-        for i in range(100):
-            s = ''.join([choice(['A','B','C', 'D']) for _ in range(6)])
+        for i in range(50):
+            N = randint(1,20)
+            s = ''.join([choice(['A','B','C', 'D']) for _ in range(N)])
             g = Graph(s)
             encode(g)
             code, _ = g.edges[g.nodes[0]][g.nodes[-1]]
-            self.assertEqual(decompress(code), s)
+            self.assertEqual(s, decompress(code))
 
 if __name__ == '__main__':
     unittest.main()
