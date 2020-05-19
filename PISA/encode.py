@@ -1,45 +1,101 @@
-from hyperstrings import Graph, Sgraph, Agraph
-from QUIS import QUIS, create_labels
+from .graphs import Graph, Sgraph, LeftAgraph, RightAgraph, \
+    concatenate_hyperstrings
+from .QUIS import QUIS, create_labels
+
+# Create S-Graphs
+def create_sgraphs(h, Q):
+    Sgraphs = {}
+    n_from = h.nodes[0]
+    n_to = h.next(n_from)
+
+    while n_to != None and h.next(n_to) != None and h.next(n_to, 2) != None:
+        if n_from != h.nodes[0]:
+            Sgraphs[n_to] = Sgraph()
+            Sgraphs[n_to].construct_from_hyperstring(h, n_to, Q)
+        Sgraphs[n_to+0.5] = Sgraph()
+        Sgraphs[n_to+0.5].construct_from_hyperstring(h, n_to+0.5, Q)
+
+        n_from = n_to
+        n_to = h.next(n_from)
+
+    for k, sg in Sgraphs.items():
+        if sg.edges == {}:
+            Sgraphs[k] = None
+
+    return Sgraphs
+
+def create_agraphs(h, Q):
+    l_agraphs = {}
+    r_agraphs = {}
+    N = int(h.len()/2)    # Maximum possible repeat length
+    for i in range(1, N):
+        l_agraphs[i] = LeftAgraph()
+        l_agraphs[i].construct_from_hyperstring(h, i, Q)
+        r_agraphs[i] = RightAgraph()
+        r_agraphs[i].construct_from_hyperstring(h, i, Q)
+    return l_agraphs, r_agraphs
 
 def encode(g):
+    hyperstrings = g.split_hyperstrings()
+    # Process individual hyperstrings
+    new_hyperstrings = []
 
-    sgraphs = []
-    for i in range(N):
-        sgraphs.append(Sgraph(string, i, Q))
-        if i != N-1:
-            sgraphs.append(Sgraph(string, i+0.5, Q))
+    for h in hyperstrings:
 
+        labels = create_labels(h)
+        Q = QUIS(h, labels)
 
-    for w in range(1, N+1):
-        for v in range(w-1, -1, -1):
-            init_code, init_load = g.get_edge(v, w)
-            best_code, best_load = init_code, init_load
-            code, load = g.find_best_iteration(v, w)
-            if load < best_load:
-                best_code, best_load = code, load
-            for sg in sgraphs:
-                code, load = sg.get_symmetry(v, w)
-                if code != None:
-                    print(code, load)
+        for i_w, w in enumerate(h.nodes[1:], start = 1):
+            Sgraphs = create_sgraphs(h, Q)
+            for k, sg in Sgraphs.items():
+                encode(sg)
+
+            subgraph = h.subgraph(h.nodes[0], w)
+            l_agraphs, r_agraphs = create_agraphs(subgraph, Q)
+            for k, ag in l_agraphs.items():
+                encode(ag)
+            for k, ag in r_agraphs.items():
+                encode(ag)
+
+            for i_v in range(i_w-1, -1, -1):
+                v = h.nodes[i_v]
+                pivot = h.nodes[int((i_w + i_v)/2)]
+                if (i_w - i_v) % 2 == 1:
+                    pivot += 0.5
+
+                # Code and load without organization
+                init_code, init_load = h.get_edge(v, w)
+                best_code, best_load = init_code, init_load
+                # Try to find better code using iteration
+                code, load = h.find_best_iteration(v, w)
                 if code and load < best_load:
                     best_code, best_load = code, load
+                # Try to find better code using symmetry
+                if pivot in Sgraphs and Sgraphs[pivot]:
+                    code, load = Sgraphs[pivot].get_symmetry(v, w)
+                    if code and load < best_load:
+                        best_code, best_load = code, load
 
-            if best_load < init_load:
-                g.add_edge(v, w, best_code)
+                for ag in l_agraphs.values():
+                    code, load = ag.get_alternation(v, w)
+                    if code and load < best_load:
+                        best_code, best_load = code, load
 
-            for u in range(v):
-                c_uv, d_uv = g.get_edge(u, v)
-                print(u, w)
-                c_uw, d_uw = g.get_edge(u, w)
-                if d_uw > d_uv + best_load:
-                    g.add_edge(u, w, c_uv + best_code)
+                for ag in r_agraphs.values():
+                    code, load = ag.get_alternation(v, w)
+                    if code and load < best_load:
+                        best_code, best_load = code, load
 
+                h.add_edge(v, w, best_code, best_load)
 
-    print(g)
-    print(g.find_shortest_path(0, len(string)))
+                for i_u in range(i_v):
+                    u = h.nodes[i_u]
+                    c_uv, d_uv = h.get_edge(u, v)
+                    c_uw, d_uw = h.get_edge(u, w)
+                    if d_uw > d_uv + best_load:
+                        h.add_edge(u, w, c_uv + best_code, d_uv + best_load)
 
-if __name__ == '__main__':
-    g = Graph(string = string)
-    N = len(string)
-    labels = create_labels(string)
-    Q = QUIS(list(string), labels)
+        new_hyperstrings.append(h)
+
+    g.clear()
+    concatenate_hyperstrings(new_hyperstrings, graph = g)
