@@ -3,6 +3,8 @@ from decompressor import decompress
 from compressor_bruteforce import compress
 from random import choice, randint
 from analogies import predict_analogy
+from PISA.encode import encode
+from PISA.graphs import Graph
 
 class Test_Decompressor(unittest.TestCase):
 
@@ -89,6 +91,7 @@ class Test_Analogy_Solver(unittest.TestCase):
             ('ABAC:ACAB::DEFG:?', 'DGFE', 3),
             ('ABC:ABD::IJJKKK:?', 'IJJLLL', 3),
             ('ABC:ABBACCC::DEF:?', 'DEEDFFF', 3),
+            ('ABC:ABCD::ABCDE:?', 'ABCDEF', 3),
         ]
         for analogy, answer, top in tests:
             self.single_analogy_test(analogy, answer, top)
@@ -100,7 +103,7 @@ class Test_Analogy_Solver(unittest.TestCase):
 
     # Run a bunch of random analogies to see whether it crashes
     def test_analogy_crashes(self):
-        for i in range(50):
+        for i in range(5):
             parts = []
             for i in range(3):
                 r = randint(1,6)
@@ -108,6 +111,16 @@ class Test_Analogy_Solver(unittest.TestCase):
                 parts.append(part)
             analogy = parts[0] + ':' + parts[1] + '::' + parts[2] + ':?'
             predict_analogy(analogy)
+
+class Test_PISA(unittest.TestCase):
+    def test_pisa(self):
+        print('TESTING PISA')
+        for i in range(100):
+            s = ''.join([choice(['A','B','C', 'D']) for _ in range(6)])
+            g = Graph(s)
+            encode(g)
+            code, _ = g.edges[g.nodes[0]][g.nodes[-1]]
+            self.assertEqual(decompress(code), s)
 
 if __name__ == '__main__':
     unittest.main()
