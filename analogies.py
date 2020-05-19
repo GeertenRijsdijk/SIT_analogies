@@ -53,7 +53,7 @@ def predict_analogy(string, n_answers = 'all'):
         quit()
 
     solves_1 = find_solves_of_codes(l1, l2, r1)
-    solves_2 = find_solves_of_codes(l1, r1, l2, penalty = 1)
+    solves_2 = find_solves_of_codes(l1, r1, l2, penalty = 0)
     solves = sorted(solves_1 + solves_2, key = lambda x:x[1])
     if n_answers == 'all':
         return solves

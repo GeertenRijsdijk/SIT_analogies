@@ -49,7 +49,7 @@ def get_chunks(string, l1):
     symb_string = ''
     # For each sequential combination of elements ...
     for i in range(len(elements)):
-        for j in range(len(elements)-i):
+        for j in range(i, len(elements)):
             # ... create a string of all symbols in those elements.
             symb_string = ''
             for e in elements[i:j+1]:
@@ -266,6 +266,7 @@ def replace_left_right(string, l1, r1):
     rsplits = [split_code(c) for c in rcodes]
 
     dist_string = add_distances_symbols(string, l1)
+    #print(dist_string)
 
     # If l1 and r1 have the same length
     if len(l1) == len(r1):
@@ -293,7 +294,6 @@ def replace_left_right(string, l1, r1):
             rep, r_inds = replace_chunks(new_string, chunk, list(r1))
             replacements.append(remove_distances(rep))
 
-
         # If it occurs as a chunk of one element
         if len(chunk[0]) == 1:
             rep, _ = replace_chunks(new_string, chunk, [r1])
@@ -315,5 +315,7 @@ def replace_left_right(string, l1, r1):
     return list(set(replacements))
 
 if __name__ == '__main__':
-    r, iss = replace_symbols('S[(a)(b)(c)]d', 'abc', ['i', '2*(j)', '3*(k)'])
-    print(r, iss)
+    #r, iss = replace_symbols('S[(a)(b)(c)]d', 'abc', ['i', '2*(j)', '3*(k)'])
+    r = replace_left_right('2*(ABC)DE', 'ABC', 'KJI')
+    #print(get_chunks('ABCS[(A)(B),(C)]', 'ABC'))
+    print(r)

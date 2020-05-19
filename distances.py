@@ -151,8 +151,9 @@ def remove_distances(code, r_codes = [], r_indices = []):
 
                 #  Add the result to the new code.
                 new_code += new_symb
-                if new_symb not in symbols:
-                    symbols.append(new_symb)
+                #if new_symb not in symbols:
+                symbols.append(new_symb)
+    #print('>>', new_code)
     return new_code
 
 if __name__ == '__main__':

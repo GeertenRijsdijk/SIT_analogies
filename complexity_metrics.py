@@ -33,37 +33,6 @@ def I_a_load(string):
 def I_new_load(string):
     return P_load(string) + len(get_chunks(string))
 
-def analogy_load(string):
-    op_weights = {
-        '*':1,      # Iteration
-        '[':1.3,      # Symmetry
-        '/':1.5,      # Alternation
-    }
-    operators = [c for c in string if c in '[*/']  # Number of operators
-    symbols = [c for i, c in enumerate(string) if is_symbol(string, i)]
-    M = len(set(operators))
-    N = len(set(symbols))
-    load = sum([log(M) + op_weights[o] for o in operators])
-    load += sum([log(N) for _ in symbols])
-
-    return load
-
-def I_seq_load(string):
-    load = 0
-    seq_depth = 0
-    for i, c in enumerate(string):
-        if c == '{':
-            seq_depth += 1
-        elif c == '}':
-            seq_depth -= 1
-
-        if c.isalpha() or c in ['/', '{']:
-            load += 1
-        if c.isdigit() and (seq_depth == 0 or string[i-1] == '('):
-            load += 1
-    return load
-    #return I_new_load(string) + string.count('{')*2
-
 # Find the number of chunks in a string that have more than one symbol and
 # are not S-chunks
 def get_chunks(s):
@@ -85,12 +54,28 @@ def get_chunks(s):
             chunks.append(s[i_start:i+1])
     return chunks
 
+def analogy_load(string):
+    op_weights = {
+        '*':1,      # Iteration
+        '[':1.3,      # Symmetry
+        '/':1.5,      # Alternation
+    }
+    operators = [c for c in string if c in '[*/']  # Number of operators
+    symbols = [c for i, c in enumerate(string) if is_symbol(string, i)]
+    M = len(set(operators))
+    N = len(set(symbols))
+    load = sum([log(M) + op_weights[o] for o in operators])
+    load += sum([log(N) for _ in symbols])
+
+    return load
+
 if __name__ == '__main__':
     # Some quick tests from literature + PISA algorithm
-    print(analogy_load('S[(A),(B)]S[(C)(F),(B)]'))
-    print(analogy_load('<(A)>/<(B)(C)(D)(E)>'))
-    quit()
+    # print(analogy_load('S[(A),(B)]S[(C)(F),(B)]'))
+    # print(analogy_load('<(A)>/<(B)(C)(D)(E)>'))
+    # quit()
     d = {
+        'aabaa':2,
         'ABCDEF':6,
         '<(aba)>/<(cdacd)(bacdacdab)>':20,
         '<(S[(a), (b)])>/<(S[(cd), (a)])(S[(b)(a)(cd), (a)])>':15,
@@ -113,9 +98,9 @@ if __name__ == '__main__':
 
     }
 
-    # for s, sip in d.items():
-    #     if I_new_load(s) != sip:
-    #         print(s, 'FAILED!')
-    #         print('RETURNED:', I_new_load(s))
-    #         print('EXPECTED:', sip)
-    # print('Done')
+    for s, sip in d.items():
+        if I_new_load(s) != sip:
+            print(s, 'FAILED!')
+            print('RETURNED:', I_new_load(s))
+            print('EXPECTED:', sip)
+    print('Done')
