@@ -1,7 +1,10 @@
 import sys
 from numpy import argmin
 sys.path.append('..')
-from .QUIS import QUIS, create_labels
+
+IT_WEIGHT = 0.5
+SYM_WEIGHT = 0.7
+ALT_WEIGHT = 0.8
 
 def concatenate_hyperstrings(hyperstrings, graph = None):
     if not graph:
@@ -312,9 +315,9 @@ class LeftAgraph(Graph):
                         label, load = hs.get_edge(node_2, self.sink)
                         label = '(' + label + ')'
                     else:
-                        label_1, _ = hs.get_edge(node, inter_node)
+                        rep_label, _ = hs.get_edge(node, inter_node)
                         label_2, load = hs.get_edge(inter_node, node_2)
-                        label = '(' + label_1 + label_2 + ')'
+                        label = '(' + rep_label + '|' + label_2 + ')'
                     if b_2 - b <= rep_len:
                         load = float('inf')
                     self.edges[node][node_2] = (label, load)
@@ -324,9 +327,9 @@ class LeftAgraph(Graph):
                         label, load = hs.get_edge(node_2, self.sink)
                         label = '(' + label + ')'
                     else:
-                        label_1, _ = hs.get_edge(node_2, inter_node)
+                        rep_label, _ = hs.get_edge(node_2, inter_node)
                         label_2, load = hs.get_edge(inter_node, self.sink)
-                        label = '(' + label_1 + label_2 + ')'
+                        label = '(' + rep_label + '|' + label_2 + ')'
                     if self.sink_b - b_2 <= rep_len:
                         load = float('inf')
                     self.edges[node_2][self.sink] = (label, load)
@@ -341,7 +344,7 @@ class LeftAgraph(Graph):
         repeat, rep_load = self.hs.get_edge(path[0], repeat_node)
         code = '<(' + repeat + ')>/<'
         total_load += rep_load
-        replace_str = '(' + repeat
+        replace_str = '(' + repeat + '|'
         for i in range(len(path)-1):
             chunk, load = self.edges[path[i]][path[i+1]]
             chunk = chunk.replace(replace_str, '(')
@@ -379,8 +382,8 @@ class RightAgraph(Graph):
                         label = '(' + label + ')'
                     else:
                         label_1, load = hs.get_edge(self.source, inter_node)
-                        label_2, _ = hs.get_edge(inter_node, node)
-                        label = '(' + label_1 + label_2 + ')'
+                        rep_label, _ = hs.get_edge(inter_node, node)
+                        label = '(' + label_1 + '|' + rep_label + ')'
                     if b <= rep_len:
                         load = float('inf')
                     self.edges[self.source][node] = (label, load)
@@ -391,8 +394,8 @@ class RightAgraph(Graph):
                         label = '(' + label + ')'
                     else:
                         label_1, load = hs.get_edge(node, inter_node)
-                        label_2, _ = hs.get_edge(inter_node, node_2)
-                        label = '(' + label_1 + label_2 + ')'
+                        rep_label, _ = hs.get_edge(inter_node, node_2)
+                        label = '(' + label_1 + '|' + rep_label + ')'
                     if b_2 - b <= rep_len:
                         load = float('inf')
                     self.edges[node][node_2] = (label, load)
@@ -416,7 +419,7 @@ class RightAgraph(Graph):
         total_load = 0.5
         repeat_node = self.hs.nodes[self.hs.nodes.index(path[1])-self.rep_len]
         repeat, rep_load = self.hs.get_edge(repeat_node, path[1])
-        replace_str = repeat + ')'
+        replace_str = '|' + repeat + ')'
         code = '<'
         for i in range(len(path)-1):
             chunk, load = self.edges[path[i]][path[i+1]]

@@ -1,7 +1,4 @@
 import numpy as np
-from random import choice
-#from graphs import Graph
-import time
 
 def QUIS(g, labels):
     # Step 0: Initialize arrays/variables
@@ -94,56 +91,3 @@ def create_labels(g):
     for i in range(N):
         labels[N-i:, i] = 0
     return labels
-
-if __name__ == '__main__':
-    # string = ''.join([choice(['A','B','C', 'D']) for _ in range(6)])
-    # string = 'abcabc'
-    # g = Graph(string)
-    # labels = create_labels(g)
-    # m = QUIS(g, labels)
-
-    g = Graph()
-    g.nodes = [3,5,8,10,13,15,17]
-    g.edges = {k:{} for k in g.nodes}
-    g.add_edge(3,5,'ac')
-    g.add_edge(5,8,'ab')
-    g.add_edge(8,10,'ae')
-    g.add_edge(10,13,'ac')
-    g.add_edge(13,15,'ab')
-    g.add_edge(15,17,'ab')
-
-    labels = create_labels(g)
-    m = QUIS(g, labels)
-
-    print(m)
-
-    hp, he = g.get_hamil_path()
-    he = [code for code, _ in he]
-
-    for k, col in enumerate(m.T, start = 1):
-        d = {}
-        for b, i in enumerate(col):
-            if i == 0:
-                continue
-            if i in d:
-                d[i].append(he[b:b+k])
-            else:
-                d[i] = [he[b:b+k]]
-
-        all_items = []
-        print(d)
-        for k in d:
-            all_items += d[k]
-            x = dict((x[0], x) for x in d[k]).values()
-            if len(x) != 1:
-                print('ERROR')
-
-        a, counts = np.unique(all_items, return_counts=True)
-        n_unique = 0
-        passed = []
-        for it in all_items:
-            if not it in passed:
-                passed.append(it)
-                n_unique += 1
-        if n_unique != len(d.keys()):
-            print('ERROR 2')

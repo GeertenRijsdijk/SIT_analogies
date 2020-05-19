@@ -8,7 +8,9 @@ def create_sgraphs(h, Q):
     n_from = h.nodes[0]
     n_to = h.next(n_from)
 
+    # For one of the two first or last ...
     while n_to != None and h.next(n_to) != None and h.next(n_to, 2) != None:
+        # ... create Sgraphs for the possible pivots
         if n_from != h.nodes[0]:
             Sgraphs[n_to] = Sgraph()
             Sgraphs[n_to].construct_from_hyperstring(h, n_to, Q)
@@ -18,6 +20,7 @@ def create_sgraphs(h, Q):
         n_from = n_to
         n_to = h.next(n_from)
 
+    # Remove empyt Sgraphs.
     for k, sg in Sgraphs.items():
         if sg.edges == {}:
             Sgraphs[k] = None
@@ -27,7 +30,8 @@ def create_sgraphs(h, Q):
 def create_agraphs(h, Q):
     l_agraphs = {}
     r_agraphs = {}
-    N = int(h.len()/2)    # Maximum possible repeat length
+    # Calculate maximum possible repeat length
+    N = int(h.len()/2)
     for i in range(1, N):
         l_agraphs[i] = LeftAgraph()
         l_agraphs[i].construct_from_hyperstring(h, i, Q)
