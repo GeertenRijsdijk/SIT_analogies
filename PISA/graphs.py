@@ -2,10 +2,19 @@ import sys
 from numpy import argmin
 sys.path.append('..')
 
+# Weights of operators, can be tuned for performace
 IT_WEIGHT = 0.5
 SYM_WEIGHT = 0.7
 ALT_WEIGHT = 0.8
 
+'''
+Turns a list of separate hyperstrings into a graph.
+Input:
+    - A list of graph objects
+    - An optional base graph object
+Output:
+    - A graph object containing all nodes + edges in all hyperstrings
+'''
 def concatenate_hyperstrings(hyperstrings, graph = None):
     if not graph:
         graph = Graph()
@@ -22,6 +31,10 @@ def concatenate_hyperstrings(hyperstrings, graph = None):
     graph.nodes.sort()
     return graph
 
+'''
+A class representing Graphs. Also used as a parent class for Sgraph, LeftAgraph
+and RightAgraph
+'''
 class Graph():
     def __init__(self, string = None):
         self.edges = {}
@@ -32,12 +45,15 @@ class Graph():
         # Nonexistent pivot
         self.pivot_node = -1
 
+    # Creates a graph for a given string of length N.
+    # Graph has N+1 nodes and N edges, one for each character.
     def init_with_string(self, string):
         self.nodes = [i for i in range(len(string)+1)]
         for i, c in enumerate(string):
             self.edges[i] = {i+1:(c,1)}
         self.edges[len(string)] = {}
 
+    # Returns a printable string representing the graph
     def __str__(self):
         ret_str = ''
         for edge in self.edges:
@@ -46,13 +62,16 @@ class Graph():
                 ret_str += ' ' + str(self.edges[edge][edge2]) + '\n'
         return ret_str
 
+    # Clears all edges of graph
     def clear(self):
         self.edges = {k:{} for k in self.nodes}
 
+    # Returns the length of the graph. -1 because there is one more node than
+    # there are edges in the hamilton path
     def len(self):
         return len(self.nodes)-1
 
-    # Number of nodes in hamilton path between n_from and n_to, inclusive
+    # Returns number of nodes in hamilton path between two nodes, inclusive.
     def path_len(self, n_from, n_to):
         if n_from == None or n_to == None:
             return None
@@ -85,6 +104,9 @@ class Graph():
                 return False
         return True
 
+    # Returns the edge between two nodes, consisting of a label and load.
+    # If there is no edge between the nodes, the label is constructed from the
+    # path between the nodes that visits every node in between.
     def get_edge(self, n_from, n_end):
         if n_end in self.edges[n_from]:
             return self.edges[n_from][n_end]
@@ -101,9 +123,11 @@ class Graph():
 
         return total_label, total_load
 
+    # Adds an edge to the graph.
     def add_edge(self, n_from, n_to, label, load):
         self.edges[n_from][n_to] = (label, load)
 
+    # Returns a graph with only nodes and edges between the two specified nodes.
     def subgraph(self, n_from, n_to):
         g = Graph()
         g.nodes = [n for n in self.nodes if n >= n_from and n <= n_to]
@@ -114,6 +138,8 @@ class Graph():
                     g.edges[node][node_2] = edge
         return g
 
+    # Finds the hamilton path starting at a specified node n.
+    # Returns the nodes and edges of the path.
     def get_hamil_path(self, n = None):
         if n == None:
             n = self.nodes[0]
@@ -129,20 +155,26 @@ class Graph():
 
         return hamil_path, hamil_edges
 
+    # Splits a graph into all hyperstrings it contains.
     def split_hyperstrings(self):
         sn = self.start_nodes()
         hyperstrings = []
+        # For every start node:
         for start_n in sn:
+            # Ignore pivot node of Sgraph.
             if start_n == self.pivot_node:
                 continue
+            # Get the hamilton path of the node ...
             hp, _ = self.get_hamil_path(start_n)
             if isinstance(self, RightAgraph) and len(hp) > 1:
                 hp = [self.source] + hp
+            # ... create a new graph ...
             g = Graph()
             g.nodes = hp
             if self.pivot_node in g.nodes:
                 g.nodes.remove(self.pivot_node)
             g.edges = {k:{} for k in hp}
+            # ... and add all nodes/edges in the hamilton path.
             for n_from in hp:
                 for n_to in self.edges[n_from]:
                     if n_to in hp and n_to != self.pivot_node:
@@ -150,18 +182,25 @@ class Graph():
             hyperstrings.append(g)
         return hyperstrings
 
+    # Given two nodes, finds the best way to represent the edges between the
+    # nodes as an iteration, if any.
     def find_best_iteration(self, n_start, n_end):
+        # Get the number of edges between the two nodes.
         N = self.path_len(n_start, n_end)
         if N == None:
             return None, None
         N -= 1
+        # For each possible divisor i of the number of edges:
         for i in range(1, int(N/2+1)):
             n_from = n_start
+            # ... check whether i divides d. if it does ...
             if N%i != 0:
                 continue
             n_next = self.next(n_from, i)
             label = self.get_edge(n_from, n_next)
+            # ... loop over the edges, i steps at a time ...
             while n_from != n_end:
+                # ... and check whether the labels are identical.
                 next_label = self.get_edge(n_from, n_next)
                 if next_label != label:
                     break
@@ -170,7 +209,9 @@ class Graph():
                 n_from = n_next
                 n_next = self.next(n_from, i)
 
+            # If all labels were identical ...
             if n_from == n_end and label == next_label:
+                # ... Create the code for the iteration.
                 it_label, it_load = label
                 multiplier = int(N/i)
                 code = str(multiplier) + '*(' + it_label + ')'
@@ -180,17 +221,21 @@ class Graph():
 
     # Dijkstra's algorithm for finding shortest path between two nodes
     def find_shortest_path(self, n_from, n_to):
+        # Initialize necessary lists
         N = max(self.nodes)+1
         visited = []
         unvisited = self.nodes[:]
         distances = [0 if v == n_from else float('inf') for v in range(N)]
         previous_node = [None]*N
 
+        # While we have not yet reached the goal node:
         while n_to not in visited:
+            # Find the node with the smallest distance to any visited node ...
             current_ind = argmin([distances[i] for i in unvisited])
             current = unvisited[current_ind]
             unvisited.remove(current)
 
+            # ... update the distances to its neighbours ...
             for neighbour in self.edges[current]:
                 if neighbour in visited:
                     continue
@@ -199,9 +244,10 @@ class Graph():
                 if new_dist < distances[neighbour]:
                     distances[neighbour] = new_dist
                     previous_node[neighbour] = current
+            # ... and add it to the visited nodes.
             visited.append(current)
 
-        # Construct path from end to start
+        # Construct path from end to start.
         path = [n_to]
         while path[0] != n_from:
             if previous_node[path[0]] == None:
@@ -209,11 +255,15 @@ class Graph():
             path = [previous_node[path[0]]] + path
         return path, distances[n_to]
 
+'''
+A class representing Sgraphs.
+'''
 class Sgraph(Graph):
     def __init__(self):
-        # Initialize Graph
         Graph.__init__(self)
 
+    # Creates the necessary nodes and edges to become an S-graph of a given
+    # hyperstring, with specified pivot.
     def construct_from_hyperstring(self, hs, pivot, Q):
         # Set variables
         self.pivot = pivot
@@ -243,11 +293,14 @@ class Sgraph(Graph):
         self.nodes = left + [self.pivot_node]
         self.edges = {k:{} for k in self.nodes}
 
-        # Create graph
+        # Create graph:
+        # For each two nodes b, b_2 with the same distance from the pivot
         for i, node in enumerate(left):
             b = hamil_path.index(node)
+            # For each length k:
             for k in range(1, len(left)-i):
                 b2 = hamil_path.index(right[-i-k-1])
+                # If the edges on the side of the pivot are identical:
                 if Q[b, k-1] == Q[b2, k-1]:
                     start_node, end_node = node, left[i + k]
                     # Add S-chunk edge
@@ -260,11 +313,16 @@ class Sgraph(Graph):
                     label = '(' + label + ')'
                     self.edges[end_node][self.pivot_node] = (label, load)
 
+    # Given two nodes, finds the optimal way to represent the edges between the
+    # nodes as a symmetry.
     def get_symmetry(self, n_from, n_to):
+        # Find the shortest path (if any) from the start to the pivot.
+        # This is the best symmetry.
         path, _ = self.find_shortest_path(n_from, self.pivot_node)
         if not path or len(path) <= 2:
             return None, None
 
+        # Construct the symmetry code from the graph.
         total_complexity = 0.5
         ret_str = 'S['
         for i in range(len(path)-1):
@@ -277,7 +335,7 @@ class Sgraph(Graph):
         ret_str += ']'
         return ret_str, total_complexity
 
-    # Special clear for Sgraphs, leaving edges towards pivot node
+    # Special clear for Sgraphs, leaving edges towards pivot node.
     def clear(self):
         new_edges = {k:{} for k in self.nodes}
         for n_from, to_dict in self.edges.items():
@@ -286,11 +344,16 @@ class Sgraph(Graph):
                     new_edges[n_from][n_to] = edge
         self.edges = new_edges
 
+'''
+A class representing Left-Alternating graphs.
+'''
 class LeftAgraph(Graph):
     def __init__(self):
         # Initialize Graph
         Graph.__init__(self)
 
+    # Creates the necessary nodes and edges to become an left-alternation graph
+    # of a given hyperstring.
     def construct_from_hyperstring(self, hs, rep_len, Q):
         # Set variables
         self.rep_len = rep_len
@@ -303,13 +366,18 @@ class LeftAgraph(Graph):
         self.sink = self.nodes[-1]
         self.sink_b = len(self.nodes)-1
 
+        # For each two nodes in the graph:
         for b, node in enumerate(hamil_path[:-2]):
             for b_2, node_2 in enumerate(hamil_path[b+1:-1], start = b+1):
+                # If the edges of the nodes+repeat lengths are identical:
                 if Q[b, rep_len-1] == Q[b_2, rep_len-1]:
+                    # Test whether pseudo-Achunks are present
                     _, testload_1 = hs.get_edge(node, node_2)
                     _, testload_2 = hs.get_edge(node_2, self.sink)
                     if testload_1 == float('inf') or testload_2 == float('inf'):
                         continue
+
+                    # 1: Create edge for node -> node_2.
                     inter_node = hs.next(node, rep_len)
                     if inter_node == None:
                         label, load = hs.get_edge(node_2, self.sink)
@@ -322,6 +390,7 @@ class LeftAgraph(Graph):
                         load = float('inf')
                     self.edges[node][node_2] = (label, load)
 
+                    # 2: Create edge for node_2 -> sink.
                     inter_node = hs.next(node_2, rep_len)
                     if inter_node == None:
                         label, load = hs.get_edge(node_2, self.sink)
@@ -334,11 +403,16 @@ class LeftAgraph(Graph):
                         load = float('inf')
                     self.edges[node_2][self.sink] = (label, load)
 
+    # Given two nodes, finds the optimal way to represent the edges between the
+    # nodes as a left-alternation.
     def get_alternation(self, n_from, n_to):
+        # Find the shortest path (if any) from the start to the pivot.
+        # This is the best alternation.
         path, dist = self.find_shortest_path(n_from, n_to)
         if not path or dist == float('inf'):
             return None, None
 
+        # Construct the edge for the alternation.
         total_load = 0.5
         repeat_node = self.hs.next(path[0], self.rep_len)
         repeat, rep_load = self.hs.get_edge(path[0], repeat_node)
@@ -358,6 +432,8 @@ class RightAgraph(Graph):
         # Initialize Graph
         Graph.__init__(self)
 
+    # Creates the necessary nodes and edges to become an right-alternation graph
+    # of a given hyperstring.
     def construct_from_hyperstring(self, hs, rep_len, Q):
         # Set variables
         self.rep_len = rep_len
@@ -369,14 +445,19 @@ class RightAgraph(Graph):
         self.edges = {k:{} for k in self.nodes}
         self.source = self.nodes[0]
 
+        # For each two nodes in the graph:
         for b, node in enumerate(hamil_path[rep_len:-1], start = rep_len):
             for b_2, node_2 in enumerate(hamil_path[b+1:], start = b+1):
+                # If the edges of the nodes+repeat lengths are identical:
                 if Q[b-rep_len, rep_len-1] == Q[b_2-rep_len, rep_len-1]:
-                    inter_node = hs.next(self.source, b - rep_len)
+                    # Test whether pseudo-Achunks are present
                     _, testload_1 = hs.get_edge(self.source, node)
                     _, testload_2 = hs.get_edge(node, node_2)
                     if testload_1 == float('inf') or testload_2 == float('inf'):
                         continue
+
+                    # 1: Create edge for source -> node.
+                    inter_node = hs.next(self.source, b - rep_len)
                     if inter_node == None:
                         label, load = hs.get_edge(self.source, node)
                         label = '(' + label + ')'
@@ -388,6 +469,7 @@ class RightAgraph(Graph):
                         load = float('inf')
                     self.edges[self.source][node] = (label, load)
 
+                    # 2: Create edge for node -> node_2.
                     inter_node = hs.next(node, b_2 - b - rep_len)
                     if inter_node == None:
                         label, load = hs.get_edge(node, node_2)
@@ -400,7 +482,9 @@ class RightAgraph(Graph):
                         load = float('inf')
                     self.edges[node][node_2] = (label, load)
 
-    # Check whether a node has incoming edges.
+    # Special is_start function for Right-alternation graphs.
+    # Checks whether a node has no incoming edges. Edges coming from the source
+    # do not count.
     def is_start_node(self, n):
         if n == self.source:
             return False
@@ -411,11 +495,16 @@ class RightAgraph(Graph):
                 return False
         return True
 
+    # Given two nodes, finds the optimal way to represent the edges between the
+    # nodes as a right-alternation.
     def get_alternation(self, n_from, n_to):
+        # Find the shortest path (if any) from the start to the pivot.
+        # This is the best alternation.
         path, dist = self.find_shortest_path(n_from, n_to)
         if not path or dist == float('inf'):
             return None, None
 
+        # Construct the edge for the alternation
         total_load = 0.5
         repeat_node = self.hs.nodes[self.hs.nodes.index(path[1])-self.rep_len]
         repeat, rep_load = self.hs.get_edge(repeat_node, path[1])
