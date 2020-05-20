@@ -313,9 +313,3 @@ def replace_left_right(string, l1, r1):
         replacements.append(remove_distances(code))
 
     return list(set(replacements))
-
-if __name__ == '__main__':
-    #r, iss = replace_symbols('S[(a)(b)(c)]d', 'abc', ['i', '2*(j)', '3*(k)'])
-    r = replace_left_right('2*(ABC)DE', 'ABC', 'KJI')
-    #print(get_chunks('ABCS[(A)(B),(C)]', 'ABC'))
-    print(r)
