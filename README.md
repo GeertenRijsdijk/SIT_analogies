@@ -14,4 +14,6 @@ Files:
 - tools.py: A collection of smaller functions that are used by multiple other files.
 
 In the PISA folder:
-- QUIS.py: Implementation of the QUick Identification of all Substrings (QUIS) algorithm. 
+- QUIS.py: Implementation of the QUick Identification of all Substrings (QUIS) algorithm.
+- graphs.py: Classes for Graphs, Sgraphs, Left/Right Agraphs. 
+- encode.py: The encoding algorithm, based on PISA.
