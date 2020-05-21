@@ -1,7 +1,8 @@
 from tools import is_symbol
 from compressor_bruteforce import compress
 from copy import copy
-from distances import add_distances_chunk, add_distances_symbols, remove_distances
+from distances import add_distances_chunk, add_distances_symbols, \
+    add_distances_positional, remove_distances
 
 '''
 Finds all the ways the elements in l1 occur in a given string, with indices
@@ -259,14 +260,18 @@ in the given string.
 Ex: replace_left_right(S[(a)(b)(c)], 'abc', 'defg')
 returns ['S[(d)(e)(f)(g)]'']
 '''
-def replace_left_right(string, l1, r1):
+def replace_left_right(string, l1, l2, r1):
     replacements = []
     rep_chunks = get_chunks(string, l1)
     rcodes, _ = compress(r1)
     rsplits = [split_code(c) for c in rcodes]
 
+    if len(l1) == len(l2):
+        dist_string = add_distances_positional(string, l1, l2)
+        code, _, _ = replace_symbols(dist_string, l1, list(r1))
+        replacements.append(remove_distances(code))
+
     dist_string = add_distances_symbols(string, l1)
-    #print(dist_string)
 
     # If l1 and r1 have the same length
     if len(l1) == len(r1):

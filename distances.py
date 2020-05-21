@@ -1,5 +1,30 @@
 from tools import alphabet, is_symbol
 
+def add_distances_positional(code, lhs, rhs):
+    new_code = ''
+    counts = {c:0 for c in rhs}
+    # For each character in the string ...
+    for i, c in enumerate(code):
+        is_symb = is_symbol(code, i)
+        # If c is a symbol and not already in the lefthandside ...
+        if is_symb and c not in lhs:
+            # ... find the symbol in lhs at the same position as c in rhs ...
+            pos_symbol = lhs[rhs.index(c, counts[c])]
+            counts[c] += 1
+            # ... calculate the distance from the last symbol
+            dist = alphabet.index(c) - alphabet.index(pos_symbol)
+            # ... and add c to the code as that distance
+            if dist >= 0:
+                new_code += '(' + pos_symbol + '+' + str(dist) + ')'
+            else:
+                new_code += '(' + pos_symbol + '-' + str(abs(dist)) + ')'
+
+        # Otherwise, just add c to the new code
+        else:
+            new_code += c
+
+    return new_code
+
 '''
 Rewrites a code, keeping only symbols in a specified set. Symbols not in the set
 are rewritten as distances from the previous new symbol.
@@ -73,7 +98,7 @@ def add_distances_chunk(code, chunk):
         # Calculate the distance from the last new symbol ...
         dist = alphabet.index(c) - alphabet.index(symbols[-1])
         new_symb = alphabet[alphabet.index(symbols[-1]) + dist]
-        # ... and write the symbol as a distance from this symbol
+        # ... and write the symbol as a distance from this symbol.
         if dist >= 0:
             new_string += '($+' + str(dist) + ')'
         else:
@@ -98,7 +123,6 @@ As 3*(K) is specified in the second argument, indicating that the structure
 should be carried over as well, resulting in 3*(L).
 '''
 def remove_distances(code, r_codes = [], r_indices = []):
-    #print('>', code)
     symbols = []
     par_stack = []
     new_code = ''
@@ -153,9 +177,11 @@ def remove_distances(code, r_codes = [], r_indices = []):
                 new_code += new_symb
                 #if new_symb not in symbols:
                 symbols.append(new_symb)
+
+    #print('>', code)
     #print('>>', new_code)
     return new_code
 
 if __name__ == '__main__':
-    a = remove_distances('S[(i)(2*(j)),(3*(k))]($+1)($-1)', ['i', '2*(j)', '3*(k)'], [3,6,14])
+    a = add_distances_positional('AAEECCCC', 'AAEE', 'CCCC')
     print(a)
