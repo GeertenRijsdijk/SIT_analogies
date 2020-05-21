@@ -17,9 +17,8 @@ def is_basic(s):
     ite = sum(c == '*' for c in s)
     sym = sum(c == '[' for c in s)
     alt = sum(c == '/' for c in s)
-    seq = sum(c == '{' for c in s)
 
-    n_operators = ite + sym + alt + seq
+    n_operators = ite + sym + alt
     if n_operators > 1:
         return False
     return True
@@ -68,22 +67,6 @@ def solve_basic_operation(code):
             new_code += r[i%len(r)]
         return new_code
 
-    # Case: Sequence
-    elif code[0] == '{':
-        code = code.strip('{}')
-        start, length, step = code.split(',')
-        start_symbol = start.strip('()')
-        start_index = alphabet.index(start.strip('()'))
-        new_code = ''
-        for i in range(int(length)):
-            offset = int(step) * i
-            elem = start.replace(start_symbol, alphabet[start_index + offset])
-            if len(elem) > 1:
-                elem = elem[1:-1]
-            new_code += elem
-
-        return new_code
-
 # Returns a list of all operators in a given code
 def find_operators(code):
     # Stack of the locations of the <, (, [
@@ -95,7 +78,7 @@ def find_operators(code):
 
     for i, c in enumerate(code):
         # (possible) start of operator, add to stack
-        if c in ['(', '[', '<', '{']:
+        if c in ['(', '[', '<']:
             bracket_stack.append((c, i))
         # Add iterations to the operators list
         elif c == ')':
@@ -115,9 +98,6 @@ def find_operators(code):
                 operators.append(left+'/'+right)
             else:
                 alternation_stack.append(code[start[1]:i+1])
-        elif c == '}':
-            start = bracket_stack.pop(-1)
-            operators.append(code[start[1]:i+1])
 
     return operators
 
@@ -139,7 +119,7 @@ def decompress_base_layer(code):
 # the hierarchically lowest operators.
 def decompress(code):
     code = code.replace(' ', '')
-    while any([s in code for s in '*[/{']):
+    while any([s in code for s in '*[/']):
         code = decompress_base_layer(code)
     return code
 

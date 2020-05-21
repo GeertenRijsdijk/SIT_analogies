@@ -85,7 +85,7 @@ def add_distances_chunk(code, chunk):
 
 '''
 Rewrites a code, turning distance operators into new symbols.
-r_codes and r_indices can be given to the program to allow it to carry over
+r_codes and r_indices can be given to the function to allow it to carry over
 structure to places where new symbols are calculated.
 
 Ex: remove_distances('S[(IJ),(K)]($+1)')
