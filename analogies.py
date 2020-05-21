@@ -2,7 +2,24 @@ from compressor_bruteforce import compress
 from decompressor import decompress
 from complexity_metrics import I_new_load, analogy_load
 from symbol_replacement import replace_left_right
+from PISA.encode import encode
+from PISA.graphs import Graph
 import sys
+
+def get_PISA_codes(string):
+    g = Graph(string)
+    encode(g)
+    all_paths = g.find_all_paths(0, len(string))
+    all_codes = []
+    for path in all_paths:
+        code = ''
+        for i in range(len(path)-1):
+            edge_code, _ = g.edges[path[i]][path[i+1]]
+            code += edge_code
+        all_codes.append(code)
+
+    all_codes = list(set(all_codes))
+    return all_codes
 
 '''
 an the 3 parts of an analogy, finds possible answers to the analogy.
@@ -21,10 +38,12 @@ Returns a list of sets, which contain:
 def find_solves_of_codes(l1, l2, r1, penalty = 0):
     solves = []
     # Find all codes
-    codes, _ = compress(l1+l2)
+    #codes, _ = compress(l1+l2)
+    codes = get_PISA_codes(l1+l2)
+
     for code in codes:
         # Replace the symbols in the codes
-        new_codes = replace_left_right(code, l1, r1)
+        new_codes = replace_left_right(code, l1, l2, r1)
         for new_code in new_codes:
             # Decompress the codes
             d = decompress(new_code)
@@ -33,7 +52,7 @@ def find_solves_of_codes(l1, l2, r1, penalty = 0):
             if d[:len(r1)] == r1:
                 complexity = analogy_load(code) + analogy_load(new_code) \
                     + penalty
-                solves.append((d[len(r1):], round(complexity,2), code, new_code))
+                solves.append((d[len(r1):], round(complexity,2), code,new_code))
 
     return solves
 
