@@ -28,21 +28,12 @@ class Test_Decompressor(unittest.TestCase):
         self.assertEqual(decompress('<<((a))((b))>/<((d))>>/<(e)>'), 'aedebede')
         self.assertEqual(decompress('<(A)>/<(<(BB)(C)>/<(A)>)(B)>'), 'ABBACAAB')
 
-    def test_sequence(self):
-        self.assertEqual(decompress('{(a),4,1}'), 'abcd')
-        self.assertEqual(decompress('{((a)),4,1}'), '(a)(b)(c)(d)')
-        self.assertEqual(decompress('{((a)),4,1}'), '(a)(b)(c)(d)')
-        self.assertEqual(decompress('{(d),4,-1}'), 'dcba')
-        self.assertEqual(decompress('{(A),4,4}'), 'AEIM')
-
     def test_combined(self):
         self.assertEqual(decompress('S[(2*(ab))(c)]'), 'ababccabab')
         self.assertEqual(decompress('S[2*((a)(b))(c)]'), 'ababccbaba')
         self.assertEqual(decompress('<2*((a)(b))>/<(f)>'), 'afbfafbf')
         self.assertEqual(decompress('3*(S[(1),(2)])'), '121121121')
         self.assertEqual(decompress('<(1)>/<S[((2)),((3))]>'), '121312')
-        self.assertEqual(decompress('<(A)>/<{((A)),4,2}>'), 'AAACAEAG')
-        self.assertEqual(decompress('S[{((A)),3,1},(D)]'), 'ABCDCBA')
 
 class Test_Compressor(unittest.TestCase):
     def test_iteration(self):
@@ -114,7 +105,7 @@ class Test_Analogy_Solver(unittest.TestCase):
 
 class Test_PISA(unittest.TestCase):
     def test_pisa(self):
-        for i in range(50):
+        for i in range(1):
             N = randint(1,20)
             s = ''.join([choice(['A','B','C', 'D']) for _ in range(N)])
             g = Graph(s)
