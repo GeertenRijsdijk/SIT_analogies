@@ -74,15 +74,18 @@ class Test_Analogy_Solver(unittest.TestCase):
             ('ABAC:ADAE::FBFC:?', 'FDFE', 3),
             ('ABC:CBA::DEF:?', 'FED', 3),
             ('ABC:CBA::DEFG:?', 'GFED', 3),
-            ('ABCB:ABCB::Q:?', 'Q', 3),
-            ('ABCB:Q::ABCB:?', 'Q', 3),
+            ('ABCB:ABCB::Q:?', 'Q', 5),
+            ('ABCB:Q::ABCB:?', 'Q', 5),
             ('ABCB:Q::BCDC:?', 'R', 3),
             ('IFP:JGQ::UEC:?', 'VFD', 3),
-            ('ABAC:ACAB::DEFG:?', 'FGDE', 3),
             ('ABAC:ACAB::DEFG:?', 'DGFE', 3),
+            ('ABAC:ACAB::DEFG:?', 'FGDE', 7),
+            ('AXCR:CRAX::DEFG:?', 'FGDE', 3),
             ('ABC:ABD::IJJKKK:?', 'IJJLLL', 3),
             ('ABC:ABBACCC::DEF:?', 'DEEDFFF', 3),
             ('ABC:ABCD::ABCDE:?', 'ABCDEF', 3),
+            ('AE:BD::CC:?', 'DB', 3),
+            ('AAE:BBD::CCC:?', 'DDB', 7),
         ]
         for analogy, answer, top in tests:
             self.single_analogy_test(analogy, answer, top)
