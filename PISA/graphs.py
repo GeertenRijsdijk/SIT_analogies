@@ -1,11 +1,7 @@
 import sys
 from numpy import argmin
 sys.path.append('..')
-
-# Weights of operators, can be tuned for performace
-IT_WEIGHT = 0.5
-SYM_WEIGHT = 0.7
-ALT_WEIGHT = 0.8
+from complexity_metrics import IT_WEIGHT, SYM_WEIGHT, ALT_WEIGHT
 
 '''
 Turns a list of separate hyperstrings into a graph.
@@ -254,6 +250,21 @@ class Graph():
                 return None, None
             path = [previous_node[path[0]]] + path
         return path, distances[n_to]
+
+    def find_all_paths(self, n_from, n_to):
+        queue = [[n_from]]
+        paths = []
+        while queue != []:
+            path = queue.pop(0)
+            for next in self.edges[path[-1]]:
+                new_path = path + [next]
+                if next == n_to:
+                    paths.append(new_path)
+                else:
+                    queue.append(new_path)
+
+        return paths
+
 
 '''
 A class representing Sgraphs.
