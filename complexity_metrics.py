@@ -55,7 +55,7 @@ def get_chunks(s):
     return chunks
 
 # Weights of operators, can be tuned for performace
-IT_WEIGHT = 1.1
+IT_WEIGHT = 0.9
 SYM_WEIGHT = 0.8
 ALT_WEIGHT = 1
 
