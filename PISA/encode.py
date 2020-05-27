@@ -2,7 +2,26 @@ from .graphs import Graph, Sgraph, LeftAgraph, RightAgraph, \
     concatenate_hyperstrings
 from .QUIS import QUIS, create_labels
 
-# Create a dictionary of S-Graphs for a given hyperstring
+def get_PISA_codes(string, return_loads = False):
+    g = Graph(string)
+    encode(g)
+    all_paths = g.find_all_paths(0, len(string))
+    all_edges = []
+    for path in all_paths:
+        code, load = '', 0
+        for i in range(len(path)-1):
+            edge_code, edge_load = g.edges[path[i]][path[i+1]]
+            code += edge_code
+            load += edge_load
+        all_edges.append((code, load))
+
+    if return_loads:
+        all_edges = list(set(all_edges))
+    else:
+        all_edges = list(set([e[0] for e in all_edges]))
+    return all_edges
+
+# Creates a dictionary of S-Graphs for a given hyperstring
 def create_sgraphs(h, Q):
     Sgraphs = {}
     n_from = h.nodes[0]
@@ -27,7 +46,7 @@ def create_sgraphs(h, Q):
 
     return Sgraphs
 
-# Create two dictionaries of A-graphs for a given hyperstring
+# Creates two dictionaries of A-graphs for a given hyperstring
 def create_agraphs(h, Q):
     l_agraphs = {}
     r_agraphs = {}
