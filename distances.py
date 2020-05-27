@@ -1,5 +1,12 @@
 from tools import alphabet, is_symbol
 
+'''
+Rewrites a code, keeping only symbols in a specified set lhs. Symbols in set
+rhs are rewritten as the symbols at the same positions in lhs, plus a distance.
+
+Ex: add_distances_positional('ABED', 'AB', 'ED')
+returns: 'AB(A+4)(B+2)'
+'''
 def add_distances_positional(code, lhs, rhs):
     new_code = ''
     counts = {c:0 for c in rhs}
@@ -32,28 +39,44 @@ are rewritten as distances from the previous new symbol.
 Ex: add_distances_symbols('S[(A),(B)]CA', 'AB')
 returns: 'S[(A),(B)]($+1)A'
 '''
-def add_distances_symbols(code, lhs):
-    new_code = ''
-    symbols = []
+def add_distances_symbols(code, lhs, add_from_last = True):
+    if isinstance(code, str):
+        new_code = ''
+    else:
+        new_code = []
+    if isinstance(lhs, list):
+        symbols = lhs
+    else:
+        symbols = []
     # For each character in the string ...
     for i, c in enumerate(code):
+        add_code = ''
         is_symb = is_symbol(code, i)
         # If c is a symbol and not already in the lefthandside ...
         if is_symb and c not in lhs:
             # ... calculate the distance from the last symbol
             dist = alphabet.index(c) - alphabet.index(symbols[-1])
             # ... and add c to the code as that distance
-            if dist >= 0:
-                new_code += '($+' + str(dist) + ')'
+            if add_from_last:
+                start = '($'
             else:
-                new_code += '($-' + str(abs(dist)) + ')'
-
+                start = '(' + str(symbols[-1])
+            if dist >= 0:
+                add_code += start + '+' + str(dist) + ')'
+            else:
+                add_code += start + '-' + str(abs(dist)) + ')'
         # Otherwise, just add c to the new code
         else:
-            new_code += c
+            add_code += c
+
+        if isinstance(code, str):
+            new_code += add_code
+        else:
+            new_code.append(add_code)
 
         if is_symb and c not in symbols:
-            symbols.append(c)
+            if c in lhs or add_from_last:
+                symbols.append(c)
 
     return new_code
 

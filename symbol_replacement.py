@@ -1,8 +1,10 @@
 from tools import is_symbol
-from compressor_bruteforce import compress
 from copy import copy
 from distances import add_distances_chunk, add_distances_symbols, \
     add_distances_positional, remove_distances
+from PISA.encode import encode, get_PISA_codes
+from PISA.graphs import Graph
+from complexity_metrics import analogy_load
 
 '''
 Finds all the ways the elements in l1 occur in a given string, with indices
@@ -263,10 +265,11 @@ returns ['S[(d)(e)(f)(g)]'']
 def replace_left_right(string, l1, l2, r1):
     replacements = []
     rep_chunks = get_chunks(string, l1)
-    rcodes, _ = compress(r1)
+    rcodes = get_PISA_codes(r1)
     rsplits = [split_code(c) for c in rcodes]
 
-    if len(l1) == len(l2):
+    # If l1 and l2 have the same length, positional distances are possible
+    if len(l1) == len(l2) and len(l1) == len(r1):
         dist_string = add_distances_positional(string, l1, l2)
         code, _, _ = replace_symbols(dist_string, l1, list(r1))
         replacements.append(remove_distances(code))
@@ -294,14 +297,10 @@ def replace_left_right(string, l1, l2, r1):
         rep_seq = replace_sequential_chunk(new_string, chunk, l1, r1)
         replacements.append(remove_distances(rep_seq))
 
-        # If the length of the chunk is equal to the length of r1
-        if len(chunk[0]) == len(r1):
-            rep, r_inds = replace_chunks(new_string, chunk, list(r1))
-            replacements.append(remove_distances(rep))
-
-        # If it occurs as a chunk of one element
-        if len(chunk[0]) == 1:
-            rep, _ = replace_chunks(new_string, chunk, [r1])
+        # Try to match r1 to the chunk, and replace
+        matched_r1 = match_elements(chunk, r1)
+        if matched_r1 and len(matched_r1) == len(chunk[0]):
+            rep, r_inds = replace_chunks(new_string, chunk, matched_r1)
             replacements.append(remove_distances(rep))
 
         # If the chunk is smaller than r1
@@ -311,10 +310,21 @@ def replace_left_right(string, l1, l2, r1):
                     rep, r_inds = replace_chunks(new_string, chunk, rs)
                     replacements.append(remove_distances(rep, rs, r_inds))
 
-    # If nothing was found ...
-    if replacements == []:
-        # ...  try replacing individual symbols as best as possible.
-        code, _, _ = replace_symbols(dist_string, l1, list(r1))
-        replacements.append(remove_distances(code))
-
     return list(set(replacements))
+
+def match_elements(chunk, r1):
+    elems, _ = chunk
+    lengths = [len(e.strip('()')) for e in elems]
+    max_len = max(lengths)
+    ind = lengths.index(max_len)
+    lengths[ind] = max_len - sum(lengths) + len(r1)
+    for l in lengths:
+        if l <= 0:
+            return None
+
+    splits = []
+    start = 0
+    for length in lengths:
+        splits.append(r1[start:start + length])
+        start += length
+    return splits
