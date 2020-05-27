@@ -1,6 +1,6 @@
 import unittest
 from decompressor import decompress
-from compressor_bruteforce import compress
+from compressor_bruteforce import compress_bf
 from random import choice, randint
 from analogies import predict_analogy
 from PISA.encode import encode
@@ -12,6 +12,7 @@ class Test_Decompressor(unittest.TestCase):
         self.assertEqual(decompress('2*(a)'), 'aa')
         self.assertEqual(decompress('2*((a))'), '(a)(a)')
         self.assertEqual(decompress('2*(3*(a))'), 'aaaaaa')
+        self.assertEqual(decompress('11*(a)'), 'aaaaaaaaaaa')
 
     def test_symmetry(self):
         self.assertEqual(decompress('S[(a)(b)]'), 'abba')
@@ -32,8 +33,8 @@ class Test_Decompressor(unittest.TestCase):
         self.assertEqual(decompress('S[(2*(ab))(c)]'), 'ababccabab')
         self.assertEqual(decompress('S[2*((a)(b))(c)]'), 'ababccbaba')
         self.assertEqual(decompress('<2*((a)(b))>/<(f)>'), 'afbfafbf')
-        self.assertEqual(decompress('3*(S[(1),(2)])'), '121121121')
-        self.assertEqual(decompress('<(1)>/<S[((2)),((3))]>'), '121312')
+        self.assertEqual(decompress('3*(S[(A),(B)])'), 'ABAABAABA')
+        self.assertEqual(decompress('<(A)>/<S[((B)),((C))]>'), 'ABACAB')
 
 class Test_Compressor(unittest.TestCase):
     def test_iteration(self):
@@ -54,7 +55,7 @@ class Test_Compressor(unittest.TestCase):
 
     def compress_decompress_compare(self, strings):
         for string in strings:
-            answers, _ = compress(string)
+            answers, _ = compress_bf(string)
             for ans in answers:
                 self.assertEqual(decompress(ans), string)
 
@@ -71,21 +72,23 @@ class Test_Analogy_Solver(unittest.TestCase):
             ('A:B::C:?', 'D', 1),
             ('ABA:ACA::ADA:?', 'AEA', 1),
             ('ABC:ABD::DEF:?', 'DEG', 1),
-            ('ABAC:ADAE::FBFC:?', 'FDFE', 3),
-            ('ABC:CBA::DEF:?', 'FED', 3),
+            ('ABAC:ADAE::FBFC:?', 'FDFE', 1),
+            ('ABC:CBA::DEF:?', 'FED', 1),
             ('ABC:CBA::DEFG:?', 'GFED', 3),
-            ('ABCB:ABCB::Q:?', 'Q', 5),
-            ('ABCB:Q::ABCB:?', 'Q', 5),
+            ('ABCB:ABCB::Q:?', 'Q', 1),
+            ('ABCB:Q::ABCB:?', 'Q', 1),
             ('ABCB:Q::BCDC:?', 'R', 3),
             ('IFP:JGQ::UEC:?', 'VFD', 3),
             ('ABAC:ACAB::DEFG:?', 'DGFE', 3),
-            ('ABAC:ACAB::DEFG:?', 'FGDE', 7),
+            ('ABAC:ACAB::DEFG:?', 'FGDE', 10),
             ('AXCR:CRAX::DEFG:?', 'FGDE', 3),
             ('ABC:ABD::IJJKKK:?', 'IJJLLL', 3),
             ('ABC:ABBACCC::DEF:?', 'DEEDFFF', 3),
             ('ABC:ABCD::ABCDE:?', 'ABCDEF', 3),
-            ('AE:BD::CC:?', 'DB', 3),
+            ('AE:BD::CC:?', 'DB', 6),
             ('AAE:BBD::CCC:?', 'DDB', 7),
+            ('ABC:ABD::IJKLM:?', 'IJKLN', 3),
+            ('CAB:DAB::MIJKL:?', 'NIJKL', 3),
         ]
         for analogy, answer, top in tests:
             self.single_analogy_test(analogy, answer, top)
@@ -101,7 +104,7 @@ class Test_Analogy_Solver(unittest.TestCase):
             parts = []
             for i in range(3):
                 r = randint(1,6)
-                part = ''.join([choice(['A','B','C', '1', '2', '3']) for _ in range(r)])
+                part = ''.join([choice(['A','B','C', 'a', 'b', 'c']) for _ in range(r)])
                 parts.append(part)
             analogy = parts[0] + ':' + parts[1] + '::' + parts[2] + ':?'
             predict_analogy(analogy)

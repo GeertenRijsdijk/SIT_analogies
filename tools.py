@@ -5,8 +5,6 @@ Geerten Rijsdijk (11296720)
 A variety of helper functions used in multiple algorithms
 '''
 
-
-
 # Alphabet class for dealing with multiple alphabets
 class Alphabet():
     def __init__(self):
@@ -48,6 +46,9 @@ def is_symbol(code, i):
     # Not alphanumeric
     if not c.isalnum():
         return False
+    if i > 0 and code[i-1] == '!':
+        return False
+
     # Iteration
     if i != len(code)-1 and code[i+1] == '*':
         return False
@@ -87,7 +88,7 @@ def lowest_complexity(codes, metric = 'I_new'):
         elif load == lowest_load:
             lowest_codes.append(code)
     return lowest_codes, lowest_load
-    
+
 def create_splits(chars):
     all_splits = []
 
