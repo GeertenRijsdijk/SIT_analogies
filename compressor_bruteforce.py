@@ -22,7 +22,7 @@ def compress_split(split):
                 # Create all possible codes for the S-argument
                 argument_split = \
                      ['('+ a +')' for a in split[i:i+pivot]]
-                _, splits = compress(argument_split)
+                _, splits = compress_bf(argument_split)
                 for s in splits:
                     new_codes.append(build_symmetry(\
                         split, i, j, pivot, elems = s))
@@ -45,7 +45,7 @@ def compress_split(split):
                 # Create all possible codes for the A-argument
                 argument_split = \
                     ['('+ a +')' for a in split[i:j][1-offset::2]]
-                _, splits = compress(argument_split)
+                _, splits = compress_bf(argument_split)
                 for s in splits:
                     new_codes.append(build_alternation(\
                         split, i, j, offset, elems = s))
@@ -53,7 +53,7 @@ def compress_split(split):
     return new_codes
 
 # Create a compression of a string
-def compress(characters):
+def compress_bf(characters):
     # Get all possible ways to split a string into substrings
     splits = create_splits(characters)
 
@@ -77,12 +77,12 @@ def compress(characters):
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('USAGE: compressor_bruteforce.py <code>')
-    elif not sys.argv[1].isalnum():
-        print('Code must contain only alphanumeric characters!')
+    elif not sys.argv[1].isalpha():
+        print('Code must contain only letters!')
     else:
         lowest_codes = []
         lowest_load = float('inf')
-        for c in compress(sys.argv[1])[0]:
+        for c in compress_bf(sys.argv[1])[0]:
             load = I_new_load(c)
             if load < lowest_load:
                 lowest_codes = [c]
