@@ -23,9 +23,9 @@ def is_basic(s):
         return False
     return True
 
-# 'quick and dirty' way of getting arguments. Not proud of this one.
+# 'quick and dirty' way of getting arguments of an operator.
 def get_arguments(code):
-    code = re.sub("[^a-zA-Z()\d+-]", '', code)
+    code = re.sub("[^a-zA-Z(){}\d+-]", '', code)
     stack = []
     arguments = []
     for i, c in enumerate(code):
@@ -40,9 +40,10 @@ def get_arguments(code):
 # Decompresses a code with at most one operator
 def solve_basic_operation(code):
     # Case: Iteration
-    if code[1] == '*':
-        n = int(code[0])
-        new_code = code[3:-1]
+    if '*' in code:
+        it_index = code.index('*')
+        n = int(''.join(code[0:it_index]))
+        new_code = code[it_index+2:-1]
         return new_code * n
 
     # Case: Symmetry
@@ -84,7 +85,10 @@ def find_operators(code):
         elif c == ')':
             start = bracket_stack.pop(-1)
             if start[1] != 0 and code[start[1]-1] == '*':
-                operators.append(code[start[1]-2:i+1])
+                par_start = start[1]-2
+                while par_start > 0 and code[par_start-1].isdigit():
+                    par_start -= 1
+                operators.append(code[par_start:i+1])
         # Add symmetries to the operators list
         elif c == ']':
             start = bracket_stack.pop(-1)
