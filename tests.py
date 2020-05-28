@@ -5,6 +5,7 @@ from random import choice, randint
 from analogies import predict_analogy
 from PISA.encode import encode
 from PISA.graphs import Graph
+from iterations import solve_with_iterations
 
 class Test_Decompressor(unittest.TestCase):
 
@@ -108,6 +109,21 @@ class Test_Analogy_Solver(unittest.TestCase):
                 parts.append(part)
             analogy = parts[0] + ':' + parts[1] + '::' + parts[2] + ':?'
             predict_analogy(analogy)
+
+class Test_Analogy_Solver(unittest.TestCase):
+    def test_analogies(self):
+        tests = {
+            ('AAAB', 'CBBB', 'EEEEEF'): 'GFFFFF',
+            ('ABA', 'AABBAA', 'AABBAA'): 'AAABBBAAA',
+            ('ABBACCC', 'ADDDD', 'IJJJIKKKK'): 'ILLLLL',
+        }
+
+        for test, answer in tests.items():
+            l1, l2, r1 = test
+            code, new_code = solve_with_iterations(l1, l2, r1)
+            self.assertEqual(decompress(code), l1+l2)
+            self.assertEqual(decompress(new_code), r1+answer)
+
 
 class Test_PISA(unittest.TestCase):
     def test_pisa(self):
