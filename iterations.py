@@ -113,8 +113,13 @@ Returns:
     - it_r1: ['4*(E)', 'F', '1*(($-1))', '4*(($+1))']
 '''
 def add_new_iterations(sym_l, sym_r1, it_r1, rep_pars):
+    # Create duplicate-less version of sym_l
+
     for i in range(len(sym_r1), len(sym_l)):
-        dist = alphabet.index(sym_l[i]) - alphabet.index(sym_l[i-1])
+        seen = set()
+        seen_add = seen.add
+        single = [x for x in sym_l[:i] if not (x in seen or seen_add(x))]
+        dist = alphabet.index(sym_l[i]) - alphabet.index(single[-1])
 
         ind = None
         if sym_l[i] in sym_l[:i]:
@@ -132,7 +137,6 @@ def add_new_iterations(sym_l, sym_r1, it_r1, rep_pars):
 
         it_r1.append(new_it)
 
-    print(it_r1)
     return it_r1
 
 '''
@@ -146,9 +150,20 @@ The latter of which is the result code, which can be decompressed to
 EEEEFEFFFF. Subtracting EEEEF leads to the answer EFFFF.
 '''
 def solve_with_iterations(l1, l2, r1):
-    _, _, sym_l1, struct_l1 = find_it_structure(l1)
-    iters_orig, _, sym_l, struct_l = find_it_structure(l1 + l2)
+    # Find structures of iteration parameters for different parts of analogy
+    iters_l1, pars_l1, sym_l1, struct_l1 = find_it_structure(l1)
     it_r1, pars_r1, sym_r1, struct_r1 = find_it_structure(r1)
+    iters_l2, pars_l2, sym_l2, struct_l2 = find_it_structure(l2)
+    iters_orig, pars_l, sym_l, struct_l = find_it_structure(l1+l2)
+
+    # Check whether the structure of l1+l2 created unwanted parameters.
+    # Eg structure of BBAA:AABB creates unwanted 4*(A)
+    # If so, replace the structure with the structure of l1 + structure of l2
+    if any(p not in pars_l1 + pars_l2 for p in pars_l):
+        iters_orig = iters_l1 + iters_l2
+        pars_l = pars_l1 + pars_l2
+        sym_l = sym_l1 + sym_l2
+        struct_l = struct_l1 + struct_l2
 
     pars_l1 = get_pars(struct_l1)
     pars_r1 = get_pars(struct_r1)
@@ -166,7 +181,6 @@ def solve_with_iterations(l1, l2, r1):
     rep_pars = get_pars(full_code)
 
     it_r1 = add_new_iterations(sym_l, sym_r1, it_r1, rep_pars)
-
     for n in rep_pars:
         replaced = False
         for it in it_r1:
@@ -183,28 +197,3 @@ def solve_with_iterations(l1, l2, r1):
 
     full_code = remove_distances(full_code)
     return ''.join(iters_orig), full_code
-
-if __name__ == '__main__':
-    a = solve_with_iterations('ABBA', 'BBABB', 'CCCDCCC')
-    print(a)
-
-# def add_new_iterations(sym_l, sym_r1, it_r1, rep_pars):
-#     for i in range(len(sym_r1), len(sym_l)):
-#         dist = alphabet.index(sym_l[i]) - alphabet.index(sym_l[i-1])
-#
-#         ind = None
-#         if sym_l[i] in sym_l[:i]:
-#             ind = sym_l[:i].index(sym_l[i])
-#
-#         if ind != None and ind < len(sym_r1):
-#             it_r1.append(sym_r1[ind])
-#         else:
-#             new_it = str(rep_pars[i]) + '*(($'
-#             if dist >= 0:
-#                 new_it += '+' + str(dist) + '))'
-#             else:
-#                 new_it += '-' + str(abs(dist)) + '))'
-#
-#             it_r1.append(new_it)
-#     print(it_r1)
-#     return it_r1
