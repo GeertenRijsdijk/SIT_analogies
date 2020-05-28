@@ -115,13 +115,24 @@ Returns:
 def add_new_iterations(sym_l, sym_r1, it_r1, rep_pars):
     for i in range(len(sym_r1), len(sym_l)):
         dist = alphabet.index(sym_l[i]) - alphabet.index(sym_l[i-1])
-        new_it = str(rep_pars[i]) + '*(($'
-        if dist >= 0:
-            new_it += '+' + str(dist) + '))'
+
+        ind = None
+        if sym_l[i] in sym_l[:i]:
+            ind = sym_l[:i].index(sym_l[i])
+
+        new_it = str(rep_pars[i]) + '*('
+        if ind != None and ind < len(sym_r1):
+            new_it += sym_r1[ind] + ')'
         else:
-            new_it += '-' + str(abs(dist)) + '))'
+            new_it += '($'
+            if dist >= 0:
+                new_it += '+' + str(dist) + '))'
+            else:
+                new_it += '-' + str(abs(dist)) + '))'
 
         it_r1.append(new_it)
+
+    print(it_r1)
     return it_r1
 
 '''
@@ -172,3 +183,28 @@ def solve_with_iterations(l1, l2, r1):
 
     full_code = remove_distances(full_code)
     return ''.join(iters_orig), full_code
+
+if __name__ == '__main__':
+    a = solve_with_iterations('ABBA', 'BBABB', 'CCCDCCC')
+    print(a)
+
+# def add_new_iterations(sym_l, sym_r1, it_r1, rep_pars):
+#     for i in range(len(sym_r1), len(sym_l)):
+#         dist = alphabet.index(sym_l[i]) - alphabet.index(sym_l[i-1])
+#
+#         ind = None
+#         if sym_l[i] in sym_l[:i]:
+#             ind = sym_l[:i].index(sym_l[i])
+#
+#         if ind != None and ind < len(sym_r1):
+#             it_r1.append(sym_r1[ind])
+#         else:
+#             new_it = str(rep_pars[i]) + '*(($'
+#             if dist >= 0:
+#                 new_it += '+' + str(dist) + '))'
+#             else:
+#                 new_it += '-' + str(abs(dist)) + '))'
+#
+#             it_r1.append(new_it)
+#     print(it_r1)
+#     return it_r1
