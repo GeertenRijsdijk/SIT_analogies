@@ -110,7 +110,7 @@ class Test_Analogy_Solver(unittest.TestCase):
             analogy = parts[0] + ':' + parts[1] + '::' + parts[2] + ':?'
             predict_analogy(analogy)
 
-class Test_Analogy_Solver(unittest.TestCase):
+class Test_Analogy_Solver_it(unittest.TestCase):
     def test_analogies(self):
         tests = {
             ('AAAB', 'CBBB', 'EEEEEF'): 'GFFFFF',
@@ -127,7 +127,7 @@ class Test_Analogy_Solver(unittest.TestCase):
 
 class Test_PISA(unittest.TestCase):
     def test_pisa(self):
-        for i in range(1):
+        for i in range(50):
             N = randint(1,20)
             s = ''.join([choice(['A','B','C', 'D']) for _ in range(N)])
             g = Graph(s)
