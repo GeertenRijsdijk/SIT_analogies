@@ -2,7 +2,7 @@ import sys
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print('USAGE: compressor_bruteforce.py <code>')
+        print('USAGE: compressor_PISA.py <code>')
     elif not sys.argv[1].isalpha():
         print('Code must contain only letters!')
     else:
