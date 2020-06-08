@@ -8,6 +8,7 @@ Files:
 - complexity_metrics.py: A collection of complexity metrics used to calculate the complexity of SIT codes.
 - compressor_bruteforce.py: Implementation of a compressor that creates every possible encoding of a given string.
 - compressor_concurrent.py: Implementation of implements an attempt to increase the speed of the brute-force compressor using an actor library. As of now, the long initialization time needed for actors means this file is not faster.
+- compressor_PISA.py: A file that allows you to try the PISA-based compressor implemented in the PISA folder from the command line.
 - compressor_optimized.py: File used for attempts at optimizations, currently not faster.
 - decompressor.py: Implementation of a decompressor that writes a given code back to a string.
 - tests.py: A unittests class with tests for the bruteforce compressor and decompressor.
