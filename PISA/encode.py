@@ -86,12 +86,13 @@ def encode(g):
         labels = create_labels(h)
         Q = QUIS(h, labels)
 
+        # Create S-graphs for hyperstring
+        Sgraphs = create_sgraphs(h, Q)
+        for k, sg in Sgraphs.items():
+            encode(sg)
+
         # For each node w in the hyperstring (except the first) ...
         for i_w, w in enumerate(h.nodes[1:], start = 1):
-            # ... create S-graphs ...
-            Sgraphs = create_sgraphs(h, Q)
-            for k, sg in Sgraphs.items():
-                encode(sg)
 
             # ... and create A-graphs.
             subgraph = h.subgraph(h.nodes[0], w)
