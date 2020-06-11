@@ -144,6 +144,9 @@ def encode(g):
                         # ... Create a code from u->v + v->w and add an edge.
                         h.add_edge(u, w, c_uv + best_code, d_uv + best_load)
 
+                    for rg in r_agraphs.values():
+                        rg.try_replace_edge(u, w, c_uv + best_code)
+
         new_hyperstrings.append(h)
 
     # Combine all hyperstrings into

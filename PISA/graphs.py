@@ -236,7 +236,8 @@ class Graph():
                 if neighbour in visited:
                     continue
                 d = self.edges[current][neighbour][1]
-                new_dist = d + distances[current]
+                # - 0.01 per node makes the algorithm prefer longer paths
+                new_dist = d + distances[current] - 0.01
                 if new_dist < distances[neighbour]:
                     distances[neighbour] = new_dist
                     previous_node[neighbour] = current
@@ -529,3 +530,17 @@ class RightAgraph(Graph):
         code += '>/<(' + repeat + ')>'
         total_load += rep_load
         return code, total_load
+
+    def try_replace_edge(self, n_from, n_to, code):
+        if n_to not in self.edges[n_from]:
+            return
+        rcode, rload = self.edges[n_from][n_to]
+        if rcode[1:-1].count('|') != 1:
+            return
+        chunk, repeat = rcode[1:-1].split('|')
+        if chunk + repeat == code:
+            return
+        if code[:len(chunk)] == chunk:
+            code = chunk + '|' + code[len(chunk):]
+            code = '(' + code + ')'
+            self.add_edge(n_from, n_to, code, rload)
