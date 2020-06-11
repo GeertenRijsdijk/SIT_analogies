@@ -76,6 +76,7 @@ class Test_Analogy_Solver(unittest.TestCase):
             ('ABAC:ADAE::FBFC:?', 'FDFE', 1),
             ('ABC:CBA::DEF:?', 'FED', 1),
             ('ABC:CBA::DEFG:?', 'GFED', 3),
+            ('ABC:CBA::LKJI:?', 'IJKL', 3),
             ('ABCB:ABCB::Q:?', 'Q', 1),
             ('ABCB:Q::ABCB:?', 'Q', 1),
             ('ABCB:Q::BCDC:?', 'R', 3),
@@ -128,7 +129,7 @@ class Test_Analogy_Solver_it(unittest.TestCase):
 class Test_PISA(unittest.TestCase):
     def test_pisa(self):
         for i in range(50):
-            N = randint(1,20)
+            N = randint(2,20)
             s = ''.join([choice(['A','B','C', 'D']) for _ in range(N)])
             g = Graph(s)
             encode(g)
