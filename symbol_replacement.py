@@ -268,7 +268,7 @@ def replace_left_right(string, l1, l2, r1):
     rcodes = get_PISA_codes(r1)
     rsplits = [split_code(c) for c in rcodes]
 
-    # If l1 and l2 have the same length, positional distances are possible
+    # If l1, l2 and l3 have the same length, positional distances are possible
     if len(l1) == len(l2) and len(l1) == len(r1):
         dist_string = add_distances_positional(string, l1, l2)
         code, _, _ = replace_symbols(dist_string, l1, list(r1))

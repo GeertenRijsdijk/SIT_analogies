@@ -24,7 +24,7 @@ Returns a list of sets, which contain:
 def find_solves_of_codes(l1, l2, r1, penalty = 0, it = False):
     solves = []
     # Find all codes
-    #codes, _ = compress_bf(l1+l2)
+    # codes, _ = compress_bf(l1+l2)
     codes = get_PISA_codes(l1+l2, return_loads = True)
     if it:
         code, new_code = solve_with_iterations(l1, l2, r1)
