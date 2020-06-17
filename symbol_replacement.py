@@ -312,16 +312,29 @@ def replace_left_right(string, l1, l2, r1):
 
     return list(set(replacements))
 
+'''
+Creates chunk elements from r1 that match the given chunk as best as possible.
+
+Example:
+    match_elements(([(a),(bcd),(e)], [1,4,9]), ijklmn)
+Returns:
+    [(i),(jklm),(n)]
+'''
 def match_elements(chunk, r1):
     elems, _ = chunk
+    # Find the lengths of the chunk elements
     lengths = [len(e.strip('()')) for e in elems]
     max_len = max(lengths)
     ind = lengths.index(max_len)
+    # The largest chunk gets will be changed in length.
     lengths[ind] = max_len - sum(lengths) + len(r1)
+    # If this leads to a chunk of length 0, or there are other empty chunks ...
     for l in lengths:
         if l <= 0:
+            # Matching is not possible.
             return None
 
+    # Use the new lengths to create the new chunk elements.
     splits = []
     start = 0
     for length in lengths:
