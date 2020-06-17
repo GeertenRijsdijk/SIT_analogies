@@ -211,7 +211,7 @@ class Graph():
                 it_label, it_load = label
                 multiplier = int(N/i)
                 code = str(multiplier) + '*(' + it_label + ')'
-                load = it_load + 0.5
+                load = it_load + IT_WEIGHT
                 return code, load
         return None, None
 
@@ -335,7 +335,7 @@ class Sgraph(Graph):
             return None, None
 
         # Construct the symmetry code from the graph.
-        total_complexity = 0.5
+        total_complexity = SYM_WEIGHT
         ret_str = 'S['
         for i in range(len(path)-1):
             chunk, complexity = self.edges[path[i]][path[i+1]]
@@ -425,7 +425,7 @@ class LeftAgraph(Graph):
             return None, None
 
         # Construct the edge for the alternation.
-        total_load = 0.5
+        total_load = ALT_WEIGHT
         repeat_node = self.hs.next(path[0], self.rep_len)
         repeat, rep_load = self.hs.get_edge(path[0], repeat_node)
         code = '<(' + repeat + ')>/<'
@@ -517,7 +517,7 @@ class RightAgraph(Graph):
             return None, None
 
         # Construct the edge for the alternation
-        total_load = 0.5
+        total_load = ALT_WEIGHT
         repeat_node = self.hs.nodes[self.hs.nodes.index(path[1])-self.rep_len]
         repeat, rep_load = self.hs.get_edge(repeat_node, path[1])
         replace_str = '|' + repeat + ')'
