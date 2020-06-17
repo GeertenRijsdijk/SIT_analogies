@@ -180,6 +180,9 @@ def solve_with_iterations(l1, l2, r1):
     full_code = decompress(full_code)
     rep_pars = get_pars(full_code)
 
+    if '0' in rep_pars:
+        return None, None
+
     it_r1 = add_new_iterations(sym_l, sym_r1, it_r1, rep_pars)
     for n in rep_pars:
         replaced = False

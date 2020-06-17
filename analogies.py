@@ -88,20 +88,19 @@ if __name__ == '__main__':
         quit()
     n_answers = 'all'
     use_iteration = False
-    if len(sys.argv) == 3:
+    if len(sys.argv) >= 3:
         if (not sys.argv[2].isdigit() or int(sys.argv[2]) < 0):
             print('USAGE: analogies.py <analogy> <n answers> <use iteration>')
             print('<n answers> should be a positive, nonzero integer.')
             quit()
         elif sys.argv[2] != '0':
             n_answers = int(sys.argv[2])
-    elif len(sys.argv) == 4:
+    if len(sys.argv) == 4:
         use_iteration = int(sys.argv[3])
     check_analogy = sys.argv[1].replace(':', '').replace('?', '')
     if not check_analogy.isalpha():
         print('Analogy should contain only letters.')
         quit()
-
     solves = predict_analogy(sys.argv[1], n_answers, it = use_iteration)
     for solve in solves:
         print(solve)
