@@ -276,13 +276,8 @@ def replace_left_right(string, l1, l2, r1):
 
     dist_string = add_distances_symbols(string, l1)
 
-    # If l1 and r1 have the same length
-    if len(l1) == len(r1):
-        code, _, _ = replace_symbols(dist_string, l1, list(r1))
-        replacements.append(remove_distances(code))
-
     # If r1 is larger than l1 ...
-    if len(l1) < len(r1):
+    if len(l1) <= len(r1):
         # ... try replacing l1 with compressed codes of r1.
         for rs in rsplits:
             if len(rs) == len(l1):
