@@ -55,9 +55,9 @@ def get_chunks(s):
     return chunks
 
 # Weights of operators, can be tuned for performace
-IT_WEIGHT = 0.9
-SYM_WEIGHT = 0.8
-ALT_WEIGHT = 1
+IT_WEIGHT = 0.8
+SYM_WEIGHT = 0.85
+ALT_WEIGHT = 1.1
 
 def analogy_load(string):
     op_weights = {
