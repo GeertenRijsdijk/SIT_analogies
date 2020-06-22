@@ -55,15 +55,17 @@ def get_chunks(s):
     return chunks
 
 # Weights of operators, can be tuned for performace
-IT_WEIGHT = 0.8
-SYM_WEIGHT = 0.85
-ALT_WEIGHT = 1.1
+weights = {
+    'IT':0.9,
+    'SYM':1.1,
+    'ALT':1.2,
+}
 
 def analogy_load(string):
     op_weights = {
-        '*':IT_WEIGHT,      # Iteration
-        '[':SYM_WEIGHT,     # Symmetry
-        '/':ALT_WEIGHT,     # Alternation
+        '*':weights['IT'],      # Iteration
+        '[':weights['SYM'],     # Symmetry
+        '/':weights['ALT'],     # Alternation
     }
     operators = [c for c in string if c in '[*/']  # Number of operators
     symbols = [c for i, c in enumerate(string) if is_symbol(string, i)]

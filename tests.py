@@ -106,7 +106,8 @@ class Test_Analogy_Solver(unittest.TestCase):
             parts = []
             for i in range(3):
                 r = randint(1,6)
-                part = ''.join([choice(['A','B','C', 'a', 'b', 'c']) for _ in range(r)])
+                part = ''.join([choice(['A','B','C', 'a', 'b', 'c']) \
+                    for _ in range(r)])
                 parts.append(part)
             analogy = parts[0] + ':' + parts[1] + '::' + parts[2] + ':?'
             predict_analogy(analogy)

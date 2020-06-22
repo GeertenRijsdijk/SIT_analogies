@@ -1,7 +1,7 @@
 import sys
 from numpy import argmin
 sys.path.append('..')
-from complexity_metrics import IT_WEIGHT, SYM_WEIGHT, ALT_WEIGHT
+from complexity_metrics import weights
 
 '''
 Turns a list of separate hyperstrings into a graph.
@@ -211,7 +211,7 @@ class Graph():
                 it_label, it_load = label
                 multiplier = int(N/i)
                 code = str(multiplier) + '*(' + it_label + ')'
-                load = it_load + IT_WEIGHT
+                load = it_load + weights['IT']
                 return code, load
         return None, None
 
@@ -335,7 +335,7 @@ class Sgraph(Graph):
             return None, None
 
         # Construct the symmetry code from the graph.
-        total_complexity = SYM_WEIGHT
+        total_complexity = weights['SYM']
         ret_str = 'S['
         for i in range(len(path)-1):
             chunk, complexity = self.edges[path[i]][path[i+1]]
@@ -425,7 +425,7 @@ class LeftAgraph(Graph):
             return None, None
 
         # Construct the edge for the alternation.
-        total_load = ALT_WEIGHT
+        total_load = weights['ALT']
         repeat_node = self.hs.next(path[0], self.rep_len)
         repeat, rep_load = self.hs.get_edge(path[0], repeat_node)
         code = '<(' + repeat + ')>/<'
@@ -517,7 +517,7 @@ class RightAgraph(Graph):
             return None, None
 
         # Construct the edge for the alternation
-        total_load = ALT_WEIGHT
+        total_load = weights['ALT']
         repeat_node = self.hs.nodes[self.hs.nodes.index(path[1])-self.rep_len]
         repeat, rep_load = self.hs.get_edge(repeat_node, path[1])
         replace_str = '|' + repeat + ')'
