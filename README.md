@@ -11,7 +11,11 @@ Files:
 - compressor_PISA.py: A file that allows you to try the PISA-based compressor implemented in the PISA folder from the command line.
 - compressor_optimized.py: File used for attempts at optimizations, currently not faster.
 - decompressor.py: Implementation of a decompressor that writes a given code back to a string.
+- distances.py: Implementation of the distance methods used to define a compression of A+B using only A.
+- iterations.py: Code exploring the usage of 'structure in parameters' in analogy solving.
+- symbol_replacement.py: Implementation of the symbol replacement methods as functions.
 - tests.py: A unittests class with tests for the bruteforce compressor and decompressor.
+- time_comparison.py: code for comparing the time needed for compression of the brute-force compressor and PISA.
 - tools.py: A collection of smaller functions that are used by multiple other files.
 
 In the PISA folder:
